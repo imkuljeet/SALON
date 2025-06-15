@@ -265,13 +265,16 @@ const fetchStaffAvailability = async () => {
 
         const tableBody = document.getElementById('staffAvailabilityBody');
 
+        // 🔧 Format "HH:mm:ss" to "HH:mm"
+        const formatTime = (timeStr) => timeStr ? timeStr.slice(0, 5) : '';
+
         response.data.staffAvailability.forEach(staff => {
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>${staff.Staff.name}</td>
                 <td>${staff.day}</td>
-                <td>${staff.startTime}</td>
-                <td>${staff.endTime}</td>
+                <td>${formatTime(staff.startTime)}</td>
+                <td>${formatTime(staff.endTime)}</td>
             `;
             tableBody.appendChild(row);
         });
@@ -279,8 +282,6 @@ const fetchStaffAvailability = async () => {
         console.error('Error fetching staff availability:', error);
     }
 };
-
-
 
 const fetchServiceAvailability = async () => {
     try {
