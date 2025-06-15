@@ -22,16 +22,52 @@
                 <!-- Staff options will be dynamically added -->
             </select>
 
-            <label for="daySelect" class="mt-2">Select Day:</label>
-            <select id="daySelect" class="form-select">
-                <option value="Monday">Monday</option>
-                <option value="Tuesday">Tuesday</option>
-                <option value="Wednesday">Wednesday</option>
-                <option value="Thursday">Thursday</option>
-                <option value="Friday">Friday</option>
-                <option value="Saturday">Saturday</option>
-                <option value="Sunday">Sunday</option>
-            </select>
+            <label for="availableDays" class="form-label mt-2">Available Days:</label>
+            <div id="availableDays" class="row">
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Monday" id="monday">
+                        <label class="form-check-label" for="monday">Monday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Tuesday" id="tuesday">
+                        <label class="form-check-label" for="tuesday">Tuesday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Wednesday" id="wednesday">
+                        <label class="form-check-label" for="wednesday">Wednesday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Thursday" id="thursday">
+                        <label class="form-check-label" for="thursday">Thursday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Friday" id="friday">
+                        <label class="form-check-label" for="friday">Friday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Saturday" id="saturday">
+                        <label class="form-check-label" for="saturday">Saturday</label>
+                    </div>
+                </div>
+                <div class="col-6 col-md-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="Sunday" id="sunday">
+                        <label class="form-check-label" for="sunday">Sunday</label>
+                    </div>
+                </div>
+            </div>
+            
 
             <div class="row mt-2">
                 <div class="col-md-6">
@@ -142,20 +178,34 @@ const fetchServices = async () => {
 // Save staff working hours
 const saveStaffHours = async () => {
     const staffId = document.getElementById('staffSelect').value;
-    const day = document.getElementById('daySelect').value;
     const startTime = document.getElementById('startTime').value;
     const endTime = document.getElementById('endTime').value;
 
-    if (!staffId || !startTime || !endTime) {
-        alert('Please select staff and valid time slots!');
+    // Get selected days from checkboxes
+    const selectedDays = Array.from(document.querySelectorAll('#availableDays input[type="checkbox"]:checked'))
+                              .map(checkbox => checkbox.value);
+
+    if (!staffId || !startTime || !endTime || selectedDays.length === 0) {
+        alert('Please select staff, time slots, and at least one day!');
         return;
     }
 
     try {
-        const response = await axiosInstance.post('/configure/set-hours', { staffId, day, startTime, endTime });
-        alert(response.data.message);
+        // Loop over each selected day and send individual requests
+        for (const day of selectedDays) {
+            const response = await axiosInstance.post('/configure/set-hours', {
+                staffId,
+                day,
+                startTime,
+                endTime
+            });
+            console.log(`Saved hours for ${day}:`, response.data.message);
+        }
+
+        alert('Working hours saved successfully!');
     } catch (error) {
         console.error('Error saving staff hours:', error);
+        alert('Something went wrong while saving hours.');
     }
 };
 
