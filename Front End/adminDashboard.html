@@ -126,6 +126,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const staffListContainer = document.getElementById('staffListContainer'); // Container for staff table
+      const formContainer = document.getElementById('staffFormContainer'); // Container for Add Staff form
   
       // Function to fetch and display staff details
       const fetchStaffDetails = () => {
@@ -205,8 +206,128 @@
   
       // Fetch and display staff details on page load
       fetchStaffDetails();
+  
+      // Handle "Add Staff" button click
+      document.getElementById('addStaffButton').addEventListener('click', function () {
+        formContainer.innerHTML = ''; // Clear previous content
+        const form = document.createElement('form');
+        form.classList.add('p-4', 'border', 'bg-light', 'rounded');
+        form.id = 'staffForm';
+  
+        // Staff Name Field
+        const nameGroup = document.createElement('div');
+        nameGroup.classList.add('mb-3');
+        const nameLabel = document.createElement('label');
+        nameLabel.setAttribute('for', 'staffName');
+        nameLabel.classList.add('form-label');
+        nameLabel.innerText = 'Name';
+        const nameInput = document.createElement('input');
+        nameInput.setAttribute('type', 'text');
+        nameInput.setAttribute('id', 'staffName');
+        nameInput.classList.add('form-control');
+        nameInput.setAttribute('placeholder', 'Enter staff name');
+        nameGroup.appendChild(nameLabel);
+        nameGroup.appendChild(nameInput);
+  
+        // Staff Email Field
+        const emailGroup = document.createElement('div');
+        emailGroup.classList.add('mb-3');
+        const emailLabel = document.createElement('label');
+        emailLabel.setAttribute('for', 'staffEmail');
+        emailLabel.classList.add('form-label');
+        emailLabel.innerText = 'Email';
+        const emailInput = document.createElement('input');
+        emailInput.setAttribute('type', 'email');
+        emailInput.setAttribute('id', 'staffEmail');
+        emailInput.classList.add('form-control');
+        emailInput.setAttribute('placeholder', 'Enter staff email');
+        emailGroup.appendChild(emailLabel);
+        emailGroup.appendChild(emailInput);
+  
+        // Staff Position Field (Dropdown)
+        const positionGroup = document.createElement('div');
+        positionGroup.classList.add('mb-3');
+        const positionLabel = document.createElement('label');
+        positionLabel.setAttribute('for', 'staffPosition');
+        positionLabel.classList.add('form-label');
+        positionLabel.innerText = 'Position';
+        const positionSelect = document.createElement('select');
+        positionSelect.setAttribute('id', 'staffPosition');
+        positionSelect.classList.add('form-select');
+        const positions = ['Stylist', 'Manager', 'Receptionist', 'Assistant', 'Other'];
+        positions.forEach(position => {
+          const option = document.createElement('option');
+          option.setAttribute('value', position);
+          option.innerText = position;
+          positionSelect.appendChild(option);
+        });
+        positionGroup.appendChild(positionLabel);
+        positionGroup.appendChild(positionSelect);
+  
+        // Staff Status Field
+        const statusGroup = document.createElement('div');
+        statusGroup.classList.add('mb-3');
+        const statusLabel = document.createElement('label');
+        statusLabel.setAttribute('for', 'staffStatus');
+        statusLabel.classList.add('form-label');
+        statusLabel.innerText = 'Status';
+        const statusSelect = document.createElement('select');
+        statusSelect.setAttribute('id', 'staffStatus');
+        statusSelect.classList.add('form-select');
+        const activeOption = document.createElement('option');
+        activeOption.setAttribute('value', 'active');
+        activeOption.innerText = 'Active';
+        const inactiveOption = document.createElement('option');
+        inactiveOption.setAttribute('value', 'inactive');
+        inactiveOption.innerText = 'Inactive';
+        statusSelect.appendChild(activeOption);
+        statusSelect.appendChild(inactiveOption);
+        statusGroup.appendChild(statusLabel);
+        statusGroup.appendChild(statusSelect);
+  
+        // Submit Button
+        const submitButton = document.createElement('button');
+        submitButton.setAttribute('type', 'submit');
+        submitButton.classList.add('btn', 'btn-success');
+        submitButton.innerText = 'Save Staff';
+  
+        form.appendChild(nameGroup);
+        form.appendChild(emailGroup);
+        form.appendChild(positionGroup);
+        form.appendChild(statusGroup);
+        form.appendChild(submitButton);
+  
+        formContainer.appendChild(form);
+  
+        // Handle form submission
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+  
+          const name = document.getElementById('staffName').value;
+          const email = document.getElementById('staffEmail').value;
+          const position = document.getElementById('staffPosition').value;
+          const status = document.getElementById('staffStatus').value;
+  
+          const payload = { name, email, position, status };
+  
+          axios.post('http://localhost:3000/staff/add-staff', payload) // Replace with your actual endpoint
+            .then(response => {
+              alert('Staff added successfully!');
+              console.log('Response:', response.data);
+  
+              // Refresh the staff table after adding a new staff member
+              formContainer.innerHTML = '';
+              fetchStaffDetails(); // Fetch updated staff list
+            })
+            .catch(error => {
+              console.error('Error adding staff:', error);
+              alert('An error occurred while adding staff.');
+            });
+        });
+      });
     });
   </script>
+  
   
 </body>
 </html>
