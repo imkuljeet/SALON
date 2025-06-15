@@ -15,4 +15,22 @@ const getCustomers = async (req, res) => {
   }
 };
 
-module.exports = { getCustomers };
+const getCustomerProfile = async (req, res) => {
+    try {
+        // Fetch the logged-in user's details
+        const customer = await User.findOne({ where: { id: req.user.id, userType: 'customer' } });
+
+        if (!customer) return res.status(404).json({ error: "Customer not found!" });
+
+        res.status(200).json({
+            name: customer.fullName,
+            email: customer.email
+        });
+    } catch (error) {
+        console.error('Error fetching customer profile:', error);
+        res.status(500).json({ error: 'Server error!' });
+    }
+};
+
+
+module.exports = { getCustomers, getCustomerProfile };
