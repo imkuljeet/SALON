@@ -305,28 +305,27 @@
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
 
-    // Predefined list of staff positions (aligned with services)
-    const predefinedPositions = [
-        "Hair Stylist", "Hair Specialist",
-        "Esthetician",
-        "Makeup Artist",
-        "Nail Technician",
-        "Massage Therapist",
-        "Waxing Specialist",
-        "Salon Manager", "Receptionist", "Assistant"
-    ];
+    const positionSpecializationMap = {
+        "Hair Stylist": ["Haircut", "Hair Coloring", "Hair Styling", "Hair Spa"],
+        "Hair Specialist": ["Keratin Treatment", "Hair Straightening"],
+        "Esthetician": ["Deep Cleansing Facial", "Anti-Aging Treatment", "Hydrating Facial", "Acne Treatment", "Skin Brightening Facial"],
+        "Makeup Artist": ["Bridal Makeup", "Party Makeup", "Natural Look Makeup", "Airbrush Makeup"],
+        "Nail Technician": ["Manicure", "Pedicure", "Nail Extensions", "Gel Polish"],
+        "Massage Therapist": ["Head Massage", "Full Body Massage", "Aromatherapy Massage"],
+        "Waxing Specialist": ["Full Body Waxing", "Eyebrow Threading", "Upper Lip Waxing"],
+        "Salon Manager": ["Team Management", "Scheduling", "Inventory Management"],
+        "Receptionist": ["Client Scheduling", "Phone Handling", "Front Desk Support"],
+        "Assistant": ["General Help", "Cleaning", "Customer Support"]
+    };
 
-    const predefinedSpecializations = [
-        "Haircut", "Hair Coloring", "Hair Styling", "Hair Spa", "Keratin Treatment", "Hair Straightening",
-        "Deep Cleansing Facial", "Anti-Aging Treatment", "Hydrating Facial", "Acne Treatment", "Skin Brightening Facial",
-        "Bridal Makeup", "Party Makeup", "Natural Look Makeup", "Airbrush Makeup",
-        "Manicure", "Pedicure", "Nail Extensions", "Gel Polish",
-        "Head Massage", "Full Body Massage", "Aromatherapy Massage",
-        "Full Body Waxing", "Eyebrow Threading", "Upper Lip Waxing"
-    ];
+    const positionOptions = Object.keys(positionSpecializationMap)
+        .map(position => `<option value="${position}">${position}</option>`)
+        .join('');
 
-    let positionOptions = predefinedPositions.map(position => `<option value="${position}">${position}</option>`).join('');
-    let specializationOptions = predefinedSpecializations.map(service => `<option value="${service}">${service}</option>`).join('');
+    const createSpecializationOptions = (position) => {
+        const specs = positionSpecializationMap[position] || [];
+        return specs.map(s => `<option value="${s}">${s}</option>`).join('');
+    };
 
     form.innerHTML = `
         <div class="mb-3">
@@ -346,7 +345,7 @@
         <div class="mb-3">
             <label for="staffSpecialization" class="form-label">Specialization</label>
             <select id="staffSpecialization" class="form-select">
-                ${specializationOptions}
+                ${createSpecializationOptions("Hair Stylist")}
             </select>
         </div>
         <div class="mb-3">
@@ -359,6 +358,13 @@
         <button type="submit" class="btn btn-success">Save Staff</button>
     `;
 
+    // Handle specialization update on position change
+    form.querySelector('#staffPosition').addEventListener('change', (e) => {
+        const selectedPosition = e.target.value;
+        const specSelect = form.querySelector('#staffSpecialization');
+        specSelect.innerHTML = createSpecializationOptions(selectedPosition);
+    });
+
     form.addEventListener('submit', event => {
         event.preventDefault();
         const payload = {
@@ -368,7 +374,7 @@
             specialization: document.getElementById('staffSpecialization').value,
             status: document.getElementById('staffStatus').value
         };
-        const token = localStorage.getItem('token'); 
+        const token = localStorage.getItem('token');
         axios.post('http://localhost:3000/staff/add-staff', payload, {
             headers: { Authorization: token }
         })
