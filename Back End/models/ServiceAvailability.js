@@ -6,7 +6,7 @@ const ServiceAvailability = sequelize.define('ServiceAvailability', {
     serviceId: { 
       type: DataTypes.INTEGER, 
       allowNull: false, 
-      references: { model: 'Service', key: 'id' } 
+      references: { model: 'Services', key: 'id' } 
     },
     availableDays: { type: DataTypes.JSON, allowNull: false }, // Example: ["Monday", "Wednesday"]
     availableTimeSlots: { type: DataTypes.JSON, allowNull: false }, // Example: ["10:00", "14:00"]

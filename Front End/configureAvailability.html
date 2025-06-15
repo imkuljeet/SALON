@@ -74,5 +74,102 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.8.4/axios.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    fetchStaff();
+    fetchServices();
+
+    // Event listener for saving staff working hours
+    document.getElementById('saveStaffHours').addEventListener('click', saveStaffHours);
+
+    // Event listener for saving service availability
+    document.getElementById('saveServiceAvailability').addEventListener('click', saveServiceAvailability);
+});
+
+// Axios configuration with token
+const axiosInstance = axios.create({
+    baseURL: 'http://localhost:3000',
+    headers: {
+        'Authorization': `${localStorage.getItem('token')}`// Retrieve token from localStorage
+    }
+});
+
+// Fetch staff members and populate dropdown
+const fetchStaff = async () => {
+    try {
+        const response = await axiosInstance.get('/staff/get-staffs');
+        const staffSelect = document.getElementById('staffSelect');
+
+        response.data.staff.forEach(staff => {
+            const option = document.createElement('option');
+            option.value = staff.id;
+            option.textContent = staff.name;
+            staffSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching staff:', error);
+    }
+};
+
+// Fetch available services and populate dropdown
+const fetchServices = async () => {
+    try {
+        const response = await axiosInstance.get('/service/get-services');
+        const serviceSelect = document.getElementById('serviceSelect');
+
+        response.data.services.forEach(service => {
+            const option = document.createElement('option');
+            option.value = service.id;
+            option.textContent = service.name;
+            serviceSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error fetching services:', error);
+    }
+};
+
+// Save staff working hours
+const saveStaffHours = async () => {
+    const staffId = document.getElementById('staffSelect').value;
+    const day = document.getElementById('daySelect').value;
+    const startTime = document.getElementById('startTime').value;
+    const endTime = document.getElementById('endTime').value;
+
+    if (!staffId || !startTime || !endTime) {
+        alert('Please select staff and valid time slots!');
+        return;
+    }
+
+    try {
+        const response = await axiosInstance.post('/staff/set-hours', { staffId, day, startTime, endTime });
+        alert(response.data.message);
+    } catch (error) {
+        console.error('Error saving staff hours:', error);
+    }
+};
+
+// Save service availability
+const saveServiceAvailability = async () => {
+    const serviceId = document.getElementById('serviceSelect').value;
+    const selectedDays = Array.from(document.querySelectorAll('#availableDays input:checked'))
+        .map(checkbox => checkbox.value);
+    const availableTimes = document.getElementById('availableTimes').value.split(',').map(time => time.trim());
+
+    if (!serviceId || selectedDays.length === 0 || availableTimes.length === 0) {
+        alert('Please select service, days, and valid time slots!');
+        return;
+    }
+
+    try {
+        const response = await axiosInstance.post('/service/set-availability', { serviceId, availableDays: selectedDays, availableTimeSlots: availableTimes });
+        alert(response.data.message);
+    } catch (error) {
+        console.error('Error saving service availability:', error);
+    }
+};
+
+</script>
 </body>
 </html>
