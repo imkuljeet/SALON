@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Staff & Service Availability</title>
+    <link rel="stylesheet" href="./css/configAvailable.css"> <!-- Link to CSS file -->
+    <script src="script.js" defer></script> <!-- Link to JS file -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+
+    <div class="container mt-4">
+        <h2 class="text-center">Configure Staff & Service Availability</h2>
+
+        <!-- Staff Working Hours Section -->
+        <div class="card p-4 shadow-sm mt-3">
+            <h4>Set Staff Working Hours</h4>
+            <label for="staffSelect">Select Staff:</label>
+            <select id="staffSelect" class="form-select">
+                <option value="">-- Select Staff Member --</option>
+                <!-- Staff options will be dynamically added -->
+            </select>
+
+            <label for="daySelect" class="mt-2">Select Day:</label>
+            <select id="daySelect" class="form-select">
+                <option value="Monday">Monday</option>
+                <option value="Tuesday">Tuesday</option>
+                <option value="Wednesday">Wednesday</option>
+                <option value="Thursday">Thursday</option>
+                <option value="Friday">Friday</option>
+                <option value="Saturday">Saturday</option>
+                <option value="Sunday">Sunday</option>
+            </select>
+
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <label for="startTime">Start Time:</label>
+                    <input type="time" id="startTime" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="endTime">End Time:</label>
+                    <input type="time" id="endTime" class="form-control">
+                </div>
+            </div>
+
+            <button class="btn btn-primary mt-3" id="saveStaffHours">Save Working Hours</button>
+        </div>
+
+        <!-- Service Availability Section -->
+        <div class="card p-4 shadow-sm mt-4">
+            <h4>Manage Service Availability</h4>
+            <label for="serviceSelect">Select Service:</label>
+            <select id="serviceSelect" class="form-select">
+                <option value="">-- Select Service --</option>
+                <!-- Service options will be dynamically added -->
+            </select>
+
+            <label for="availableDays" class="mt-2">Available Days:</label>
+            <div id="availableDays">
+                <label><input type="checkbox" value="Monday"> Monday</label>
+                <label><input type="checkbox" value="Tuesday"> Tuesday</label>
+                <label><input type="checkbox" value="Wednesday"> Wednesday</label>
+                <label><input type="checkbox" value="Thursday"> Thursday</label>
+                <label><input type="checkbox" value="Friday"> Friday</label>
+                <label><input type="checkbox" value="Saturday"> Saturday</label>
+                <label><input type="checkbox" value="Sunday"> Sunday</label>
+            </div>
+
+            <label for="availableTimes" class="mt-2">Available Time Slots:</label>
+            <input type="text" id="availableTimes" class="form-control" placeholder="Enter available times (comma-separated)">
+
+            <button class="btn btn-success mt-3" id="saveServiceAvailability">Save Service Availability</button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -32,3 +32,25 @@
     background-color: #574bdb; /* Darker on hover */
   }
   
+  .card {
+    background-color: #f8f9fa; /* Light gray background */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Spacing inside the card */
+    transition: transform 0.2s ease-in-out; /* Smooth hover effect */
+}
+
+.card:hover {
+    transform: scale(1.05); /* Slight zoom effect on hover */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Adds depth on hover */
+}
+
+.card-title {
+    font-size: 1.4rem; /* Slightly larger title */
+    font-weight: bold;
+    color: #343a40; /* Dark gray for text */
+}
+
+.card-text {
+    font-size: 1rem; /* Normal text size */
+    color: #6c757d; /* Slightly lighter gray */
+}
