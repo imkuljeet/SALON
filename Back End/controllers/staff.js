@@ -1,7 +1,7 @@
 const Staff = require('../models/Staff'); // Import the Staff model
 
 const addStaff = async (req, res) => {
-  const { name, email, position, status } = req.body; // Extract staff details from request body
+  const { name, email, position, status, specialization } = req.body; // Added specialization field
 
   try {
     // Check if a staff member with the same email already exists
@@ -10,12 +10,13 @@ const addStaff = async (req, res) => {
       return res.status(400).json({ error: 'A staff member with this email already exists!' });
     }
 
-    // Create a new staff entry
+    // Create a new staff entry with specialization
     const newStaff = await Staff.create({
       name,
       email,
       position,
       status,
+      specialization // Added to database
     });
 
     res.status(201).json({
@@ -25,8 +26,9 @@ const addStaff = async (req, res) => {
         name: newStaff.name,
         email: newStaff.email,
         position: newStaff.position,
-        status: newStaff.status,
-      }, // Return only the necessary details
+        specialization: newStaff.specialization, // Include specialization in response
+        status: newStaff.status
+      }
     });
   } catch (error) {
     console.error('Error adding staff:', error);

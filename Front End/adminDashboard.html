@@ -247,53 +247,57 @@
   // Fetch and display staff details
   const fetchStaffDetails = () => {
     const token = localStorage.getItem('token'); 
-    axios.get('http://localhost:3000/staff/get-staffs',{
+    axios.get('http://localhost:3000/staff/get-staffs', {
         headers: { Authorization: token }
     })
-      .then(response => {
+    .then(response => {
         const staffData = response.data.staff;
         if (staffData.length === 0) {
-          // If no staff data, hide the table
-          staffListContainer.style.display = 'none';
+            staffListContainer.style.display = 'none';
         } else {
-          staffListContainer.style.display = 'block';
-          staffListContainer.innerHTML = '';
-          const table = document.createElement('table');
-          table.classList.add('table', 'table-bordered');
-          const thead = document.createElement('thead');
-          const headerRow = document.createElement('tr');
-          ['#', 'Name', 'Email', 'Position', 'Status', 'Actions'].forEach(headerText => {
-            const th = document.createElement('th');
-            th.innerText = headerText;
-            headerRow.appendChild(th);
-          });
-          thead.appendChild(headerRow);
-          const tbody = document.createElement('tbody');
-          staffData.forEach((member, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${index + 1}</td>
-              <td>${member.name}</td>
-              <td>${member.email}</td>
-              <td>${member.position}</td>
-              <td>${member.status}</td>
-              <td>
-                <button class="btn btn-sm btn-primary">Edit</button>
-                <button class="btn btn-sm btn-danger ms-2">Delete</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-          });
-          table.appendChild(thead);
-          table.appendChild(tbody);
-          staffListContainer.appendChild(table);
+            staffListContainer.style.display = 'block';
+            staffListContainer.innerHTML = '';
+
+            const table = document.createElement('table');
+            table.classList.add('table', 'table-bordered');
+
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['#', 'Name', 'Email', 'Position', 'Specialization', 'Status', 'Actions'].forEach(headerText => {
+                const th = document.createElement('th');
+                th.innerText = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            const tbody = document.createElement('tbody');
+            staffData.forEach((member, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${member.name}</td>
+                    <td>${member.email}</td>
+                    <td>${member.position}</td>
+                    <td>${member.specialization || 'Not specified'}</td> <!-- Display specialization -->
+                    <td>${member.status}</td>
+                    <td>
+                        <button class="btn btn-sm btn-primary">Edit</button>
+                        <button class="btn btn-sm btn-danger ms-2">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            staffListContainer.appendChild(table);
         }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.error('Error fetching staff details:', error);
-        staffListContainer.style.display = 'none'; // Hide table in case of an error
-      });
-  };
+        staffListContainer.style.display = 'none';
+    });
+};
 
   // Handle "Add Staff" button click
   document.getElementById('addStaffButton').addEventListener('click', () => {
@@ -301,53 +305,60 @@
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
     form.innerHTML = `
-      <div class="mb-3">
-        <label for="staffName" class="form-label">Name</label>
-        <input type="text" id="staffName" class="form-control" placeholder="Enter staff name">
-      </div>
-      <div class="mb-3">
-        <label for="staffEmail" class="form-label">Email</label>
-        <input type="email" id="staffEmail" class="form-control" placeholder="Enter staff email">
-      </div>
-      <div class="mb-3">
-        <label for="staffPosition" class="form-label">Position</label>
-        <select id="staffPosition" class="form-select">
-          <option value="Stylist">Stylist</option>
-          <option value="Manager">Manager</option>
-          <option value="Receptionist">Receptionist</option>
-          <option value="Assistant">Assistant</option>
-        </select>
-      </div>
-      <div class="mb-3">
-        <label for="staffStatus" class="form-label">Status</label>
-        <select id="staffStatus" class="form-select">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-success">Save Staff</button>
+        <div class="mb-3">
+            <label for="staffName" class="form-label">Name</label>
+            <input type="text" id="staffName" class="form-control" placeholder="Enter staff name">
+        </div>
+        <div class="mb-3">
+            <label for="staffEmail" class="form-label">Email</label>
+            <input type="email" id="staffEmail" class="form-control" placeholder="Enter staff email">
+        </div>
+        <div class="mb-3">
+            <label for="staffPosition" class="form-label">Position</label>
+            <select id="staffPosition" class="form-select">
+                <option value="Stylist">Stylist</option>
+                <option value="Manager">Manager</option>
+                <option value="Receptionist">Receptionist</option>
+                <option value="Assistant">Assistant</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="staffSpecialization" class="form-label">Specialization</label>
+            <input type="text" id="staffSpecialization" class="form-control" placeholder="Enter specialization (e.g., Hair Coloring, Makeup)">
+        </div>
+        <div class="mb-3">
+            <label for="staffStatus" class="form-label">Status</label>
+            <select id="staffStatus" class="form-select">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-success">Save Staff</button>
     `;
+    
     form.addEventListener('submit', event => {
-      event.preventDefault();
-      const payload = {
-        name: document.getElementById('staffName').value,
-        email: document.getElementById('staffEmail').value,
-        position: document.getElementById('staffPosition').value,
-        status: document.getElementById('staffStatus').value,
-      };
-      const token = localStorage.getItem('token'); 
-      axios.post('http://localhost:3000/staff/add-staff', payload, {
-        headers: { Authorization: token }
-    })
+        event.preventDefault();
+        const payload = {
+            name: document.getElementById('staffName').value,
+            email: document.getElementById('staffEmail').value,
+            position: document.getElementById('staffPosition').value,
+            specialization: document.getElementById('staffSpecialization').value, // Added specialization field
+            status: document.getElementById('staffStatus').value
+        };
+        const token = localStorage.getItem('token'); 
+        axios.post('http://localhost:3000/staff/add-staff', payload, {
+            headers: { Authorization: token }
+        })
         .then(() => {
-          alert('Staff added successfully!');
-          staffFormContainer.innerHTML = '';
-          fetchStaffDetails();
+            alert('Staff added successfully!');
+            staffFormContainer.innerHTML = '';
+            fetchStaffDetails();
         })
         .catch(error => console.error('Error adding staff:', error));
     });
+
     staffFormContainer.appendChild(form);
-  });
+});
 
   fetchStaffDetails();
 

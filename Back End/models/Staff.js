@@ -21,6 +21,7 @@ const Staff = sequelize.define('Staff', {
     allowNull: false,
     defaultValue: 'active',
   },
+  specialization: { type: DataTypes.STRING, allowNull: true },
 }, {
   timestamps: true, // Adds createdAt and updatedAt columns
 });
