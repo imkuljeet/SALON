@@ -6,6 +6,7 @@ const cors = require('cors');
 const sequelize = require('./util/database');
 
 const User = require('./models/User');
+const Staff = require('./models/Staff');
 
 const userRoutes = require('./routes/user');
 
