@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt'); // Import bcrypt for hashing
 const User = require('../models/User'); // Import the User model
+const jwt = require('jsonwebtoken'); // Import JWT module
 
 const signup = async (req, res) => {
     const { fullName, email, password, userType } = req.body;
@@ -55,9 +56,17 @@ const login = async (req, res) => {
             return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
         }
 
-        // Respond with success message if credentials are valid
+        // Generate JWT token
+        const token = jwt.sign(
+            { id: user.id, email: user.email, userType: user.userType }, // Payload (User details)
+            process.env.JWT_SECRET, // Secret key for signing
+            { expiresIn: '7d' } // Token expiration (7 days)
+        );
+
+        // Respond with token and user details
         res.status(200).json({
             message: 'Login successful!',
+            token, // Send token in response
             user: {
                 id: user.id,
                 fullName: user.fullName,

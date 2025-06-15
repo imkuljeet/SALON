@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const dontenv = require('dotenv');
 
 // Set up Sequelize and database connection
 const sequelize = require('./util/database');
@@ -16,6 +17,7 @@ const customerRoutes = require('./routes/customer');
 
 // Initialize Express app
 const app = express();
+dontenv.config();
 const PORT = 3000;
 
 // Middleware
