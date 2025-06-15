@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Appointment</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="./css/bookAppointment.css" />
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
+  <div class="container">
+    <a class="navbar-brand" href="index.html">Salon</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <!-- Hardcoded Logout button -->
+        <li class="nav-item">
+          <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<div class="container py-5">
+  <h2 class="mb-3 text-center">Book Your Appointment</h2>
+
+  <!-- Go to Dashboard link (left-aligned) -->
+  <div class="mb-4">
+    <a href="customerDashboard.html" class="btn btn-outline-primary">← Go to Dashboard</a>
+  </div>
+
+  <!-- Services Accordion -->
+  <div class="accordion" id="servicesAccordion">
+    <!-- Services will be injected here -->
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="py-4 bg-dark text-light text-center">
+  <div class="container">
+    <p class="mb-0">&copy; 2025 Salon Name. All Rights Reserved.</p>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+// Logout function
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "login.html";
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const accordion = document.getElementById("servicesAccordion");
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await axios.get("http://localhost:3000/service/get-services", {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const services = res.data.services;
+
+    services.forEach((service, index) => {
+      const card = `
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="heading${index}">
+            <button class="accordion-button ${index !== 0 ? 'collapsed' : ''}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${index}" aria-expanded="${index === 0}" aria-controls="collapse${index}">
+              ${service.name}
+            </button>
+          </h2>
+          <div id="collapse${index}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" aria-labelledby="heading${index}" data-bs-parent="#servicesAccordion">
+            <div class="accordion-body">
+              <p><strong>Description:</strong> ${service.description || 'No description provided.'}</p>
+              <p><strong>Price:</strong> ₹${service.price}</p>
+              <p><strong>Duration:</strong> ${service.duration} minutes</p>
+              <button class="btn btn-success btn-sm mt-2" onclick="bookService(${service.id})">Book This Service</button>
+            </div>
+          </div>
+        </div>
+      `;
+      accordion.insertAdjacentHTML("beforeend", card);
+    });
+  } catch (err) {
+    console.error("Error loading services:", err);
+    accordion.innerHTML = `<div class="alert alert-danger">Failed to load services.</div>`;
+  }
+});
+
+function bookService(serviceId) {
+  alert("Booking service ID: " + serviceId);
+}
+</script>
+</body>
+</html>

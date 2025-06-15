@@ -2,30 +2,70 @@ const StaffAvailability = require('../models/StaffAvailability');
 const Staff = require('../models/Staff');
 
 
+
 const Service = require('../models/Service');
+const ServiceAvailability = require('../models/ServiceAvailability');
+
 
 
 // Set staff working hours
+
 exports.setStaffHours = async (req, res) => {
-    const { staffId, day, startTime, endTime } = req.body;
+  const { staffId, day, startTime, endTime } = req.body;
 
-    try {
-        const existingAvailability = await StaffAvailability.findOne({ where: { staffId, day } });
+  try {
+    // 1. Check if availability for that day exists
+    let availability = await StaffAvailability.findOne({ where: { staffId, day } });
 
-        if (existingAvailability) {
-            await existingAvailability.update({ startTime, endTime });
-            return res.status(200).json({ message: 'Staff working hours updated successfully!' });
-        }
-
-        const newAvailability = await StaffAvailability.create({ staffId, day, startTime, endTime });
-        res.status(201).json({ message: 'Staff working hours set successfully!', availability: newAvailability });
-    } catch (error) {
-        console.error('Error setting staff hours:', error);
-        res.status(500).json({ error: 'An error occurred while setting staff hours.' });
+    if (availability) {
+      await availability.update({ startTime, endTime });
+    } else {
+      availability = await StaffAvailability.create({ staffId, day, startTime, endTime });
     }
+
+    // 2. Fetch staff info (including specialization)
+    const staff = await Staff.findByPk(staffId);
+    if (!staff || !staff.specialization) {
+      return res.status(400).json({ error: 'Staff not found or missing specialization.' });
+    }
+
+    // 3. Find the service ID based on specialization name
+    const service = await Service.findOne({ where: { name: staff.specialization } });
+    if (!service) {
+      return res.status(400).json({ error: 'No matching service found for staff specialization.' });
+    }
+
+    // 4. Gather all availability entries for this staff
+    const allAvailabilities = await StaffAvailability.findAll({ where: { staffId } });
+
+    const availableDays = allAvailabilities.map(a => a.day);
+    const availableTimeSlots = [...new Set(allAvailabilities.map(a => a.startTime))]; // Unique start times
+
+    // 5. Update or create ServiceAvailability
+    const [serviceAvailability, created] = await ServiceAvailability.findOrCreate({
+      where: { serviceId: service.id },
+      defaults: {
+        availableDays,
+        availableTimeSlots,
+      },
+    });
+
+    if (!created) {
+      await serviceAvailability.update({ availableDays, availableTimeSlots });
+    }
+
+    res.status(200).json({
+      message: 'Staff working hours and service availability updated successfully!',
+      availability,
+    });
+
+  } catch (error) {
+    console.error('Error setting staff hours:', error);
+    res.status(500).json({ error: 'An error occurred while setting staff hours.' });
+  }
 };
 
-const ServiceAvailability = require('../models/ServiceAvailability');
+
 
 // Set service availability
 exports.setServiceAvailability = async (req, res) => {
