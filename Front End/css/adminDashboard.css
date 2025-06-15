@@ -1,0 +1,34 @@
+/* Cards Styling */
+.card {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    border-radius: 8px; /* Smooth corners */
+  }
+  
+  .card-title {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  /* Table Styling */
+  .table {
+    text-align: center;
+  }
+  
+  .table th, .table td {
+    vertical-align: middle;
+  }
+  
+  /* Buttons */
+  .btn-primary {
+    background-color: #6c63ff; /* Soft purple button */
+    border: none;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545; /* Logout button */
+  }
+  
+  .btn-primary:hover {
+    background-color: #574bdb; /* Darker on hover */
+  }
+  
