@@ -7,9 +7,11 @@ const sequelize = require('./util/database');
 
 const User = require('./models/User');
 const Staff = require('./models/Staff');
+const Service = require('./models/Service');
 
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
+const serviceRoutes = require('./routes/service');
 
 // Initialize Express app
 const app = express();
@@ -22,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/user',userRoutes);
 app.use('/staff',staffRoutes);
+app.use('/service',serviceRoutes);
 
 // Sync the model with the database
 sequelize.sync()

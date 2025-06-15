@@ -96,9 +96,15 @@
     <!-- Manage Services -->
     <div class="mb-5">
       <h3>Manage Services</h3>
-      <button class="btn btn-primary mb-3">Add Service</button>
-      <button class="btn btn-primary mb-3">Edit Services</button>
-      <button class="btn btn-danger mb-3">Delete Services</button>
+      
+      <!-- Add Service Button -->
+      <button class="btn btn-primary mb-3" id="addServiceButton">Add Service</button> <!-- Button to open form -->
+
+      <!-- Service Form Container (hidden initially) -->
+      <div id="serviceFormContainer" class="mt-4"></div> <!-- Container for dynamic service form -->
+
+      <!-- Services Table Container -->
+      <div id="servicesTableContainer" class="table-responsive mt-4"></div> <!-- Container for dynamic table -->
     </div>
 
       <!-- Staff Management -->
@@ -125,209 +131,205 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const staffListContainer = document.getElementById('staffListContainer'); // Container for staff table
-      const formContainer = document.getElementById('staffFormContainer'); // Container for Add Staff form
-  
-      // Function to fetch and display staff details
-      const fetchStaffDetails = () => {
-        axios.get('http://localhost:3000/staff/get-staffs') // Replace with your actual endpoint
-          .then(response => {
-            const staffData = response.data.staff; // Assuming response contains a 'staff' array
-            staffListContainer.innerHTML = ''; // Clear any existing content
-  
-            // Create the table dynamically
-            const table = document.createElement('table');
-            table.classList.add('table', 'table-bordered');
-  
-            // Create table header
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            ['#', 'Name', 'Email', 'Position', 'Status', 'Actions'].forEach(headerText => {
-              const th = document.createElement('th');
-              th.innerText = headerText;
-              headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-  
-            // Create table body
-            const tbody = document.createElement('tbody');
-            staffData.forEach((member, index) => {
-              const row = document.createElement('tr');
-  
-              // Add serial number
-              const serialCell = document.createElement('td');
-              serialCell.innerText = index + 1;
-              row.appendChild(serialCell);
-  
-              // Add name
-              const nameCell = document.createElement('td');
-              nameCell.innerText = member.name;
-              row.appendChild(nameCell);
-  
-              // Add email
-              const emailCell = document.createElement('td');
-              emailCell.innerText = member.email;
-              row.appendChild(emailCell);
-  
-              // Add position
-              const positionCell = document.createElement('td');
-              positionCell.innerText = member.position;
-              row.appendChild(positionCell);
-  
-              // Add status
-              const statusCell = document.createElement('td');
-              statusCell.innerText = member.status;
-              row.appendChild(statusCell);
-  
-              // Add actions
-              const actionsCell = document.createElement('td');
-              const editButton = document.createElement('button');
-              editButton.classList.add('btn', 'btn-sm', 'btn-primary');
-              editButton.innerText = 'Edit';
-              const deleteButton = document.createElement('button');
-              deleteButton.classList.add('btn', 'btn-sm', 'btn-danger', 'ms-2');
-              deleteButton.innerText = 'Delete';
-              actionsCell.appendChild(editButton);
-              actionsCell.appendChild(deleteButton);
-              row.appendChild(actionsCell);
-  
-              tbody.appendChild(row);
-            });
-  
-            table.appendChild(thead);
-            table.appendChild(tbody);
-            staffListContainer.appendChild(table);
-          })
-          .catch(error => {
-            console.error('Error fetching staff details:', error);
-            staffListContainer.innerHTML = '<p class="text-danger">Failed to fetch staff details. Please try again later.</p>';
+  const staffListContainer = document.getElementById('staffListContainer');
+  const staffFormContainer = document.getElementById('staffFormContainer');
+  const servicesTableContainer = document.getElementById('servicesTableContainer');
+  const serviceFormContainer = document.getElementById('serviceFormContainer');
+
+  /* ---------------- STAFF MANAGEMENT ---------------- */
+
+  // Fetch and display staff details
+  const fetchStaffDetails = () => {
+    axios.get('http://localhost:3000/staff/get-staffs')
+      .then(response => {
+        const staffData = response.data.staff;
+        if (staffData.length === 0) {
+          // If no staff data, hide the table
+          staffListContainer.style.display = 'none';
+        } else {
+          staffListContainer.style.display = 'block';
+          staffListContainer.innerHTML = '';
+          const table = document.createElement('table');
+          table.classList.add('table', 'table-bordered');
+          const thead = document.createElement('thead');
+          const headerRow = document.createElement('tr');
+          ['#', 'Name', 'Email', 'Position', 'Status', 'Actions'].forEach(headerText => {
+            const th = document.createElement('th');
+            th.innerText = headerText;
+            headerRow.appendChild(th);
           });
-      };
-  
-      // Fetch and display staff details on page load
-      fetchStaffDetails();
-  
-      // Handle "Add Staff" button click
-      document.getElementById('addStaffButton').addEventListener('click', function () {
-        formContainer.innerHTML = ''; // Clear previous content
-        const form = document.createElement('form');
-        form.classList.add('p-4', 'border', 'bg-light', 'rounded');
-        form.id = 'staffForm';
-  
-        // Staff Name Field
-        const nameGroup = document.createElement('div');
-        nameGroup.classList.add('mb-3');
-        const nameLabel = document.createElement('label');
-        nameLabel.setAttribute('for', 'staffName');
-        nameLabel.classList.add('form-label');
-        nameLabel.innerText = 'Name';
-        const nameInput = document.createElement('input');
-        nameInput.setAttribute('type', 'text');
-        nameInput.setAttribute('id', 'staffName');
-        nameInput.classList.add('form-control');
-        nameInput.setAttribute('placeholder', 'Enter staff name');
-        nameGroup.appendChild(nameLabel);
-        nameGroup.appendChild(nameInput);
-  
-        // Staff Email Field
-        const emailGroup = document.createElement('div');
-        emailGroup.classList.add('mb-3');
-        const emailLabel = document.createElement('label');
-        emailLabel.setAttribute('for', 'staffEmail');
-        emailLabel.classList.add('form-label');
-        emailLabel.innerText = 'Email';
-        const emailInput = document.createElement('input');
-        emailInput.setAttribute('type', 'email');
-        emailInput.setAttribute('id', 'staffEmail');
-        emailInput.classList.add('form-control');
-        emailInput.setAttribute('placeholder', 'Enter staff email');
-        emailGroup.appendChild(emailLabel);
-        emailGroup.appendChild(emailInput);
-  
-        // Staff Position Field (Dropdown)
-        const positionGroup = document.createElement('div');
-        positionGroup.classList.add('mb-3');
-        const positionLabel = document.createElement('label');
-        positionLabel.setAttribute('for', 'staffPosition');
-        positionLabel.classList.add('form-label');
-        positionLabel.innerText = 'Position';
-        const positionSelect = document.createElement('select');
-        positionSelect.setAttribute('id', 'staffPosition');
-        positionSelect.classList.add('form-select');
-        const positions = ['Stylist', 'Manager', 'Receptionist', 'Assistant', 'Other'];
-        positions.forEach(position => {
-          const option = document.createElement('option');
-          option.setAttribute('value', position);
-          option.innerText = position;
-          positionSelect.appendChild(option);
-        });
-        positionGroup.appendChild(positionLabel);
-        positionGroup.appendChild(positionSelect);
-  
-        // Staff Status Field
-        const statusGroup = document.createElement('div');
-        statusGroup.classList.add('mb-3');
-        const statusLabel = document.createElement('label');
-        statusLabel.setAttribute('for', 'staffStatus');
-        statusLabel.classList.add('form-label');
-        statusLabel.innerText = 'Status';
-        const statusSelect = document.createElement('select');
-        statusSelect.setAttribute('id', 'staffStatus');
-        statusSelect.classList.add('form-select');
-        const activeOption = document.createElement('option');
-        activeOption.setAttribute('value', 'active');
-        activeOption.innerText = 'Active';
-        const inactiveOption = document.createElement('option');
-        inactiveOption.setAttribute('value', 'inactive');
-        inactiveOption.innerText = 'Inactive';
-        statusSelect.appendChild(activeOption);
-        statusSelect.appendChild(inactiveOption);
-        statusGroup.appendChild(statusLabel);
-        statusGroup.appendChild(statusSelect);
-  
-        // Submit Button
-        const submitButton = document.createElement('button');
-        submitButton.setAttribute('type', 'submit');
-        submitButton.classList.add('btn', 'btn-success');
-        submitButton.innerText = 'Save Staff';
-  
-        form.appendChild(nameGroup);
-        form.appendChild(emailGroup);
-        form.appendChild(positionGroup);
-        form.appendChild(statusGroup);
-        form.appendChild(submitButton);
-  
-        formContainer.appendChild(form);
-  
-        // Handle form submission
-        form.addEventListener('submit', function (event) {
-          event.preventDefault();
-  
-          const name = document.getElementById('staffName').value;
-          const email = document.getElementById('staffEmail').value;
-          const position = document.getElementById('staffPosition').value;
-          const status = document.getElementById('staffStatus').value;
-  
-          const payload = { name, email, position, status };
-  
-          axios.post('http://localhost:3000/staff/add-staff', payload) // Replace with your actual endpoint
-            .then(response => {
-              alert('Staff added successfully!');
-              console.log('Response:', response.data);
-  
-              // Refresh the staff table after adding a new staff member
-              formContainer.innerHTML = '';
-              fetchStaffDetails(); // Fetch updated staff list
-            })
-            .catch(error => {
-              console.error('Error adding staff:', error);
-              alert('An error occurred while adding staff.');
-            });
-        });
+          thead.appendChild(headerRow);
+          const tbody = document.createElement('tbody');
+          staffData.forEach((member, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${member.name}</td>
+              <td>${member.email}</td>
+              <td>${member.position}</td>
+              <td>${member.status}</td>
+              <td>
+                <button class="btn btn-sm btn-primary">Edit</button>
+                <button class="btn btn-sm btn-danger ms-2">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          staffListContainer.appendChild(table);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching staff details:', error);
+        staffListContainer.style.display = 'none'; // Hide table in case of an error
       });
+  };
+
+  // Handle "Add Staff" button click
+  document.getElementById('addStaffButton').addEventListener('click', () => {
+    staffFormContainer.innerHTML = '';
+    const form = document.createElement('form');
+    form.classList.add('p-4', 'border', 'bg-light', 'rounded');
+    form.innerHTML = `
+      <div class="mb-3">
+        <label for="staffName" class="form-label">Name</label>
+        <input type="text" id="staffName" class="form-control" placeholder="Enter staff name">
+      </div>
+      <div class="mb-3">
+        <label for="staffEmail" class="form-label">Email</label>
+        <input type="email" id="staffEmail" class="form-control" placeholder="Enter staff email">
+      </div>
+      <div class="mb-3">
+        <label for="staffPosition" class="form-label">Position</label>
+        <select id="staffPosition" class="form-select">
+          <option value="Stylist">Stylist</option>
+          <option value="Manager">Manager</option>
+          <option value="Receptionist">Receptionist</option>
+          <option value="Assistant">Assistant</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="staffStatus" class="form-label">Status</label>
+        <select id="staffStatus" class="form-select">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-success">Save Staff</button>
+    `;
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById('staffName').value,
+        email: document.getElementById('staffEmail').value,
+        position: document.getElementById('staffPosition').value,
+        status: document.getElementById('staffStatus').value,
+      };
+      axios.post('http://localhost:3000/staff/add-staff', payload)
+        .then(() => {
+          alert('Staff added successfully!');
+          staffFormContainer.innerHTML = '';
+          fetchStaffDetails();
+        })
+        .catch(error => console.error('Error adding staff:', error));
     });
+    staffFormContainer.appendChild(form);
+  });
+
+  fetchStaffDetails();
+
+  /* ---------------- SERVICES MANAGEMENT ---------------- */
+
+  // Fetch and display services
+  const fetchServices = () => {
+    axios.get('http://localhost:3000/service/get-services')
+      .then(response => {
+        const services = response.data.services;
+        if (services.length === 0) {
+          // If no services data, hide the table
+          servicesTableContainer.style.display = 'none';
+        } else {
+          servicesTableContainer.style.display = 'block';
+          servicesTableContainer.innerHTML = '';
+          const table = document.createElement('table');
+          table.classList.add('table', 'table-bordered');
+          const thead = document.createElement('thead');
+          const headerRow = document.createElement('tr');
+          ['#', 'Name', 'Price', 'Duration', 'Actions'].forEach(headerText => {
+            const th = document.createElement('th');
+            th.innerText = headerText;
+            headerRow.appendChild(th);
+          });
+          thead.appendChild(headerRow);
+          const tbody = document.createElement('tbody');
+          services.forEach((service, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${index + 1}</td>
+              <td>${service.name}</td>
+              <td>₹${service.price}</td>
+              <td>${service.duration} mins</td>
+              <td>
+                <button class="btn btn-sm btn-primary">Edit</button>
+                <button class="btn btn-sm btn-danger ms-2">Delete</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+          table.appendChild(thead);
+          table.appendChild(tbody);
+          servicesTableContainer.appendChild(table);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching services:', error);
+        servicesTableContainer.style.display = 'none'; // Hide table in case of an error
+      });
+  };
+
+  // Handle "Add Service" button click
+  document.getElementById('addServiceButton').addEventListener('click', () => {
+    serviceFormContainer.innerHTML = '';
+    const form = document.createElement('form');
+    form.classList.add('p-4', 'border', 'bg-light', 'rounded');
+    form.innerHTML = `
+      <div class="mb-3">
+        <label for="serviceName" class="form-label">Service Name</label>
+        <input type="text" id="serviceName" class="form-control" placeholder="Enter service name">
+      </div>
+      <div class="mb-3">
+        <label for="servicePrice" class="form-label">Price (₹)</label>
+        <input type="number" id="servicePrice" class="form-control" placeholder="Enter service price">
+      </div>
+      <div class="mb-3">
+        <label for="serviceDuration" class="form-label">Duration (mins)</label>
+        <input type="number" id="serviceDuration" class="form-control" placeholder="Enter service duration">
+      </div>
+      <button type="submit" class="btn btn-success">Save Service</button>
+    `;
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById('serviceName').value,
+        price: document.getElementById('servicePrice').value,
+        duration: document.getElementById('serviceDuration').value,
+      };
+      axios.post('http://localhost:3000/service/add-service', payload)
+        .then(() => {
+          alert('Service added successfully!');
+          serviceFormContainer.innerHTML = '';
+          fetchServices();
+        })
+        .catch(error => console.error('Error adding service:', error));
+    });
+    serviceFormContainer.appendChild(form);
+  });
+
+  fetchServices();
+});
+
   </script>
-  
-  
+
 </body>
 </html>
