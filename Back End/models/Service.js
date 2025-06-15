@@ -15,6 +15,10 @@ const Service = sequelize.define('Service', {
     type: DataTypes.INTEGER,
     allowNull: false, // Duration (in minutes) is required
   },
+  description: {
+    type: DataTypes.TEXT, // Allows longer descriptions
+    allowNull: true, // Optional field (can be null)
+  },
 }, {
   timestamps: true, // Includes createdAt and updatedAt fields
 });

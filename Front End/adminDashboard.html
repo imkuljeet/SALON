@@ -351,93 +351,110 @@
   // Fetch and display services
   const fetchServices = () => {
     const token = localStorage.getItem('token'); 
-    axios.get('http://localhost:3000/service/get-services',{
+    axios.get('http://localhost:3000/service/get-services', {
         headers: { Authorization: token }
     })
-      .then(response => {
+    .then(response => {
         const services = response.data.services;
+
         if (services.length === 0) {
-          // If no services data, hide the table
-          servicesTableContainer.style.display = 'none';
+            // If no services available, hide the table
+            servicesTableContainer.style.display = 'none';
         } else {
-          servicesTableContainer.style.display = 'block';
-          servicesTableContainer.innerHTML = '';
-          const table = document.createElement('table');
-          table.classList.add('table', 'table-bordered');
-          const thead = document.createElement('thead');
-          const headerRow = document.createElement('tr');
-          ['#', 'Name', 'Price', 'Duration', 'Actions'].forEach(headerText => {
-            const th = document.createElement('th');
-            th.innerText = headerText;
-            headerRow.appendChild(th);
-          });
-          thead.appendChild(headerRow);
-          const tbody = document.createElement('tbody');
-          services.forEach((service, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td>${index + 1}</td>
-              <td>${service.name}</td>
-              <td>₹${service.price}</td>
-              <td>${service.duration} mins</td>
-              <td>
-                <button class="btn btn-sm btn-primary">Edit</button>
-                <button class="btn btn-sm btn-danger ms-2">Delete</button>
-              </td>
-            `;
-            tbody.appendChild(row);
-          });
-          table.appendChild(thead);
-          table.appendChild(tbody);
-          servicesTableContainer.appendChild(table);
+            servicesTableContainer.style.display = 'block';
+            servicesTableContainer.innerHTML = '';
+
+            // Create table dynamically
+            const table = document.createElement('table');
+            table.classList.add('table', 'table-bordered');
+
+            // Table Header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['#', 'Name', 'Price', 'Duration', 'Description', 'Actions'].forEach(headerText => {
+                const th = document.createElement('th');
+                th.innerText = headerText;
+                headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+
+            // Table Body
+            const tbody = document.createElement('tbody');
+            services.forEach((service, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                  <td>${index + 1}</td>
+                  <td>${service.name}</td>
+                  <td>₹${service.price}</td>
+                  <td>${service.duration} mins</td>
+                  <td>${service.description || 'No description available'}</td> <!-- Description Field -->
+                  <td>
+                    <button class="btn btn-sm btn-primary">Edit</button>
+                    <button class="btn btn-sm btn-danger ms-2">Delete</button>
+                  </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            servicesTableContainer.appendChild(table);
         }
-      })
-      .catch(error => {
+    })
+    .catch(error => {
         console.error('Error fetching services:', error);
         servicesTableContainer.style.display = 'none'; // Hide table in case of an error
-      });
-  };
+    });
+};
 
-  // Handle "Add Service" button click
-  document.getElementById('addServiceButton').addEventListener('click', () => {
+// Handle "Add Service" button click
+document.getElementById('addServiceButton').addEventListener('click', () => {
     serviceFormContainer.innerHTML = '';
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
     form.innerHTML = `
       <div class="mb-3">
         <label for="serviceName" class="form-label">Service Name</label>
-        <input type="text" id="serviceName" class="form-control" placeholder="Enter service name">
+        <input type="text" id="serviceName" class="form-control" placeholder="Enter service name" required>
       </div>
       <div class="mb-3">
         <label for="servicePrice" class="form-label">Price (₹)</label>
-        <input type="number" id="servicePrice" class="form-control" placeholder="Enter service price">
+        <input type="number" id="servicePrice" class="form-control" placeholder="Enter service price" required>
       </div>
       <div class="mb-3">
         <label for="serviceDuration" class="form-label">Duration (mins)</label>
-        <input type="number" id="serviceDuration" class="form-control" placeholder="Enter service duration">
+        <input type="number" id="serviceDuration" class="form-control" placeholder="Enter service duration" required>
+      </div>
+      <div class="mb-3">
+        <label for="serviceDescription" class="form-label">Description</label>
+        <textarea id="serviceDescription" class="form-control" placeholder="Enter service description" rows="3"></textarea>
       </div>
       <button type="submit" class="btn btn-success">Save Service</button>
     `;
+
     form.addEventListener('submit', (event) => {
       event.preventDefault();
       const payload = {
         name: document.getElementById('serviceName').value,
         price: document.getElementById('servicePrice').value,
         duration: document.getElementById('serviceDuration').value,
+        description: document.getElementById('serviceDescription').value, // New field
       };
+      
       const token = localStorage.getItem('token'); 
       axios.post('http://localhost:3000/service/add-service', payload, {
         headers: { Authorization: token }
-    })
-        .then(() => {
+      })
+      .then(() => {
           alert('Service added successfully!');
           serviceFormContainer.innerHTML = '';
           fetchServices();
-        })
-        .catch(error => console.error('Error adding service:', error));
+      })
+      .catch(error => console.error('Error adding service:', error));
     });
+
     serviceFormContainer.appendChild(form);
-  });
+});
 
   fetchServices();
 });
