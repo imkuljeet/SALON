@@ -101,12 +101,15 @@
       <button class="btn btn-danger mb-3">Delete Services</button>
     </div>
 
-    <!-- Staff Management -->
-    <div class="mb-5">
-      <h3>Staff Management</h3>
-      <button class="btn btn-primary mb-3">Add Staff</button>
-      <button class="btn btn-primary mb-3">Edit Staff</button>
-    </div>
+      <!-- Staff Management -->
+  <div class="mb-5">
+    <h3>Staff Management</h3>
+    <button class="btn btn-primary mb-3" id="addStaffButton">Add Staff</button> <!-- Add Staff button stays as before -->
+    <div id="staffFormContainer" class="mt-4"></div> <!-- Form container -->
+    <div id="staffListContainer" class="table-responsive"></div> <!-- Staff table container -->
+  </div>
+
+
   </section>
 
   <!-- Footer -->
@@ -121,10 +124,89 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.8.4/axios.min.js"></script>
 
   <script>
-    function logout() {
-      alert('You have logged out!');
-      window.location.href = 'login.html'; // Redirect to login page
-    }
+    document.addEventListener('DOMContentLoaded', function () {
+      const staffListContainer = document.getElementById('staffListContainer'); // Container for staff table
+  
+      // Function to fetch and display staff details
+      const fetchStaffDetails = () => {
+        axios.get('http://localhost:3000/staff/get-staffs') // Replace with your actual endpoint
+          .then(response => {
+            const staffData = response.data.staff; // Assuming response contains a 'staff' array
+            staffListContainer.innerHTML = ''; // Clear any existing content
+  
+            // Create the table dynamically
+            const table = document.createElement('table');
+            table.classList.add('table', 'table-bordered');
+  
+            // Create table header
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
+            ['#', 'Name', 'Email', 'Position', 'Status', 'Actions'].forEach(headerText => {
+              const th = document.createElement('th');
+              th.innerText = headerText;
+              headerRow.appendChild(th);
+            });
+            thead.appendChild(headerRow);
+  
+            // Create table body
+            const tbody = document.createElement('tbody');
+            staffData.forEach((member, index) => {
+              const row = document.createElement('tr');
+  
+              // Add serial number
+              const serialCell = document.createElement('td');
+              serialCell.innerText = index + 1;
+              row.appendChild(serialCell);
+  
+              // Add name
+              const nameCell = document.createElement('td');
+              nameCell.innerText = member.name;
+              row.appendChild(nameCell);
+  
+              // Add email
+              const emailCell = document.createElement('td');
+              emailCell.innerText = member.email;
+              row.appendChild(emailCell);
+  
+              // Add position
+              const positionCell = document.createElement('td');
+              positionCell.innerText = member.position;
+              row.appendChild(positionCell);
+  
+              // Add status
+              const statusCell = document.createElement('td');
+              statusCell.innerText = member.status;
+              row.appendChild(statusCell);
+  
+              // Add actions
+              const actionsCell = document.createElement('td');
+              const editButton = document.createElement('button');
+              editButton.classList.add('btn', 'btn-sm', 'btn-primary');
+              editButton.innerText = 'Edit';
+              const deleteButton = document.createElement('button');
+              deleteButton.classList.add('btn', 'btn-sm', 'btn-danger', 'ms-2');
+              deleteButton.innerText = 'Delete';
+              actionsCell.appendChild(editButton);
+              actionsCell.appendChild(deleteButton);
+              row.appendChild(actionsCell);
+  
+              tbody.appendChild(row);
+            });
+  
+            table.appendChild(thead);
+            table.appendChild(tbody);
+            staffListContainer.appendChild(table);
+          })
+          .catch(error => {
+            console.error('Error fetching staff details:', error);
+            staffListContainer.innerHTML = '<p class="text-danger">Failed to fetch staff details. Please try again later.</p>';
+          });
+      };
+  
+      // Fetch and display staff details on page load
+      fetchStaffDetails();
+    });
   </script>
+  
 </body>
 </html>
