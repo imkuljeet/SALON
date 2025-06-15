@@ -5,5 +5,8 @@ const authenticate = require('../middleware/auth');
 
 router.get('/:serviceId', authenticate ,serviceAvailabilityController.getServiceAvailabilityByServiceId);
 router.post('/book',authenticate,serviceAvailabilityController.bookAppointment);
+// Backend route to check if service is booked
+router.get('/check-service-booked/:serviceId', authenticate, serviceAvailabilityController.checkIfServiceBooked);
+
 
 module.exports = router;

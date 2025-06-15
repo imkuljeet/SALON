@@ -123,3 +123,30 @@ exports.bookAppointment = async (req, res) => {
     return res.status(500).json({ message: 'Something went wrong' });
   }
 };
+
+//=====
+
+
+// Check if the slot is already booked
+exports.checkIfServiceBooked = async (req, res) => {
+  const { serviceId } = req.params;
+
+  try {
+    const appointment = await Appointment.findOne({
+      where: {
+        serviceId,
+        status: 'booked'
+      }
+    });
+
+    if (appointment) {
+      return res.status(409).json({ error: "This service is already booked." });
+    }
+
+    res.status(200).json({ available: true });
+  } catch (error) {
+    console.error("Error checking service booking:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
