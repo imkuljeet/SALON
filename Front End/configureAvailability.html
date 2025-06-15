@@ -175,13 +175,11 @@ const fetchServices = async () => {
     }
 };
 
-// Save staff working hours
 const saveStaffHours = async () => {
     const staffId = document.getElementById('staffSelect').value;
     const startTime = document.getElementById('startTime').value;
     const endTime = document.getElementById('endTime').value;
 
-    // Get selected days from checkboxes
     const selectedDays = Array.from(document.querySelectorAll('#availableDays input[type="checkbox"]:checked'))
                               .map(checkbox => checkbox.value);
 
@@ -191,17 +189,15 @@ const saveStaffHours = async () => {
     }
 
     try {
-        // Loop over each selected day and send individual requests
-        for (const day of selectedDays) {
-            const response = await axiosInstance.post('/configure/set-hours', {
-                staffId,
-                day,
-                startTime,
-                endTime
-            });
-            console.log(`Saved hours for ${day}:`, response.data.message);
-        }
+        // 🔄 Send one request with all selected days
+        const response = await axiosInstance.post('/configure/set-hours', {
+            staffId,
+            days: selectedDays,
+            startTime,
+            endTime
+        });
 
+        console.log('Saved hours:', response.data.message);
         alert('Working hours saved successfully!');
     } catch (error) {
         console.error('Error saving staff hours:', error);

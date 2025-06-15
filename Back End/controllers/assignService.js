@@ -1,4 +1,3 @@
-const StaffService = require('../models/StaffService');
 const StaffAvailability = require('../models/StaffAvailability');
 const Staff = require('../models/Staff');
 const Service = require('../models/Service');

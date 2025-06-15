@@ -15,17 +15,27 @@ const ServiceAvailability = require('../models/ServiceAvailability');
 
 // Set staff working hours
 exports.setStaffHours = async (req, res) => {
-  const { staffId, day, startTime, endTime } = req.body;
+  const { staffId, days, startTime, endTime } = req.body;
+
+  if (!staffId || !Array.isArray(days) || days.length === 0 || !startTime || !endTime) {
+    return res.status(400).json({ error: 'Missing or invalid required fields.' });
+  }
 
   try {
-    // 1. Check if availability for that day exists
-    let availability = await StaffAvailability.findOne({ where: { staffId, day } });
+    // 1. Loop through each selected day and create/update availability
+    const availabilityPromises = days.map(async (day) => {
+      let availability = await StaffAvailability.findOne({ where: { staffId, day } });
 
-    if (availability) {
-      await availability.update({ startTime, endTime });
-    } else {
-      availability = await StaffAvailability.create({ staffId, day, startTime, endTime });
-    }
+      if (availability) {
+        await availability.update({ startTime, endTime });
+      } else {
+        availability = await StaffAvailability.create({ staffId, day, startTime, endTime });
+      }
+
+      return availability;
+    });
+
+    const updatedAvailabilities = await Promise.all(availabilityPromises);
 
     // 2. Fetch staff info (including specialization)
     const staff = await Staff.findByPk(staffId);
@@ -43,7 +53,7 @@ exports.setStaffHours = async (req, res) => {
     const allAvailabilities = await StaffAvailability.findAll({ where: { staffId } });
 
     const availableDays = allAvailabilities.map(a => a.day);
-    const availableTimeSlots = [...new Set(allAvailabilities.map(a => a.startTime))]; // Unique start times
+    const availableTimeSlots = allAvailabilities.map(a => a.startTime); // Include all startTimes
 
     // 5. Update or create ServiceAvailability
     const [serviceAvailability, created] = await ServiceAvailability.findOrCreate({
@@ -60,14 +70,13 @@ exports.setStaffHours = async (req, res) => {
 
     // 6. Associate staff with service (Many-to-Many via Sequelize magic methods)
     const isAssociated = await staff.hasService(service);
-
     if (!isAssociated) {
       await staff.addService(service);
     }
 
     res.status(200).json({
       message: 'Staff working hours and service availability updated successfully!',
-      availability,
+      availabilities: updatedAvailabilities,
     });
 
   } catch (error) {
