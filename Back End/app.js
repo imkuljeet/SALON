@@ -1,37 +1,78 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const { Sequelize, DataTypes } = require('sequelize');
 
+// Initialize Express app
 const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(cors()); // Allows cross-origin requests
-app.use(bodyParser.json()); // Parses incoming JSON requests
-app.use(bodyParser.urlencoded({ extended: true })); // Parses URL-encoded data
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// POST Route for Sign Up
-app.post('/signup', (req, res) => {
-  // Extract data from the request body
+// Set up Sequelize and database connection
+const sequelize = new Sequelize('SALON','root','Itsgreat_12345', {
+  host: 'localhost',
+  dialect: 'mysql',
+});
+
+// Define the User model
+const User = sequelize.define('User', {
+  fullName: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  userType: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+}, {
+  timestamps: true, // Adds createdAt and updatedAt columns
+});
+
+// Sync the model with the database
+sequelize.sync()
+  .then(() => {
+    console.log('Database synced and User model is ready.');
+  })
+  .catch((error) => {
+    console.error('Error syncing database:', error);
+  });
+
+// POST route for sign-up
+app.post('/signup', async (req, res) => {
   const { fullName, email, password, userType } = req.body;
 
-  // Basic validation
-  if (!fullName || !email || !password || !userType) {
-    return res.status(400).json({ error: 'All fields are required!' });
+  try {
+    // Create a new user in the database
+    const newUser = await User.create({
+      fullName,
+      email,
+      password,
+      userType,
+    });
+
+    res.status(201).json({
+      message: 'User signed up successfully!',
+      user: newUser,
+    });
+  } catch (error) {
+    console.error('Error during sign-up:', error);
+    res.status(500).json({
+      error: 'An error occurred during sign-up.',
+    });
   }
-
-  // Log the incoming data (for testing purposes)
-  console.log('Sign-up data received:', { fullName, email, password, userType });
-
-  // Simulating saving data to a database
-  // Replace this logic with actual database code, e.g., MongoDB or SQL
-  const savedData = { fullName, email, password, userType };
-
-  // Send a success response
-  res.status(200).json({
-    message: 'User signed up successfully!',
-    data: savedData,
-  });
 });
 
 // Start the server
