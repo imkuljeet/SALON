@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body>
-
+    
     <div class="container mt-4">
         <h2 class="text-center">Configure Staff & Service Availability</h2>
 
@@ -73,6 +73,15 @@
             <button class="btn btn-success mt-3" id="saveServiceAvailability">Save Service Availability</button>
         </div>
     </div>
+
+    <div class="container mt-4">
+        <h3>Staff Availability</h3>
+        <div id="staffAvailabilityTable"></div>
+    
+        <h3>Service Availability</h3>
+        <div id="serviceAvailabilityTable"></div>
+    </div>
+    
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.8.4/axios.min.js"></script>
 
@@ -188,46 +197,70 @@ const saveServiceAvailability = async () => {
 const fetchStaffAvailability = async () => {
     try {
         const response = await axiosInstance.get('/configure/get-availability');
-        console.log('Staff Availability Response:', response.data); // Debugging
+        console.log('Staff Availability Response:', response.data);
 
-        const availabilityContainer = document.createElement('div');
+        const tableContainer = document.getElementById('staffAvailabilityTable');
+        tableContainer.innerHTML = `<table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Staff Name</th>
+                    <th>Day</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                </tr>
+            </thead>
+            <tbody id="staffAvailabilityBody">
+            </tbody>
+        </table>`;
+
+        const tableBody = document.getElementById('staffAvailabilityBody');
 
         response.data.staffAvailability.forEach(staff => {
-            const staffBlock = document.createElement('div');
-            staffBlock.classList.add('availability-block');
-            staffBlock.innerHTML = `
-                <h5>${staff.Staff.name}</h5>
-                <p>Day: ${staff.day}</p>
-                <p>Working Hours: ${staff.startTime} - ${staff.endTime}</p>
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${staff.Staff.name}</td>
+                <td>${staff.day}</td>
+                <td>${staff.startTime}</td>
+                <td>${staff.endTime}</td>
             `;
-            availabilityContainer.appendChild(staffBlock);
+            tableBody.appendChild(row);
         });
-
-        document.body.appendChild(availabilityContainer); // Append to page
     } catch (error) {
         console.error('Error fetching staff availability:', error);
     }
 };
 
+
+
 const fetchServiceAvailability = async () => {
     try {
-        const response = await axiosInstance.get('/configure//get-service-availability');
-        console.log('Service Availability Response:', response.data); // Debugging
+        const response = await axiosInstance.get('/configure/get-service-availability');
+        console.log('Service Availability Response:', response.data);
 
-        const availabilityContainer = document.createElement('div');
+        const tableContainer = document.getElementById('serviceAvailabilityTable');
+        tableContainer.innerHTML = `<table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Service Name</th>
+                    <th>Available Days</th>
+                    <th>Time Slots</th>
+                </tr>
+            </thead>
+            <tbody id="serviceAvailabilityBody">
+            </tbody>
+        </table>`;
+
+        const tableBody = document.getElementById('serviceAvailabilityBody');
 
         response.data.serviceAvailability.forEach(service => {
-            const serviceBlock = document.createElement('div');
-            serviceBlock.classList.add('availability-block');
-            serviceBlock.innerHTML = `
-                <h5>${service.Service.name}</h5>
-                <p>Available Days: ${service.availableDays.join(', ')}</p>
-                <p>Time Slots: ${service.availableTimeSlots.join(', ')}</p>
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${service.Service.name}</td>
+                <td>${service.availableDays.join(', ')}</td>
+                <td>${service.availableTimeSlots.join(', ')}</td>
             `;
-            availabilityContainer.appendChild(serviceBlock);
+            tableBody.appendChild(row);
         });
-
-        document.body.appendChild(availabilityContainer); // Append to page
     } catch (error) {
         console.error('Error fetching service availability:', error);
     }
