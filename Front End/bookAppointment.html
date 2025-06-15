@@ -122,7 +122,7 @@ async function bookService(serviceId, buttonElement) {
       const button = document.createElement("button");
       button.className = "btn btn-outline-primary btn-sm";
       button.textContent = `${day} ${formatTime(time)}`;
-      button.onclick = () => alert(`You selected: ${day} at ${formatTime(time)}`);
+      button.onclick = () => confirmBooking(serviceId, day, time);
       slotContainer.appendChild(button);
     });
 
@@ -130,6 +130,28 @@ async function bookService(serviceId, buttonElement) {
   console.error("Error fetching service availability:", error);
   slotContainer.innerHTML = '<div class="alert alert-warning">No slots available for this service.</div>';
 }
+}
+
+async function confirmBooking(serviceId, day, time) {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await axios.post("http://localhost:3000/appointment/book", {
+      serviceId,
+      day,
+      time
+    }, {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    alert("Appointment booked successfully!");
+    // Optionally redirect or update UI here
+  } catch (err) {
+    console.error("Booking failed:", err);
+    alert("Failed to book appointment. Please try again.");
+  }
 }
 
 function formatTime(timeString) {

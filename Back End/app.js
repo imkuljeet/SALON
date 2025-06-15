@@ -11,6 +11,7 @@ const Staff = require('./models/Staff');
 const Service = require('./models/Service');
 const StaffAvailability = require('./models/StaffAvailability');
 const ServiceAvailability = require('./models/ServiceAvailability');
+const Appointment = require('./models/Appointment');
 
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
@@ -54,6 +55,16 @@ ServiceAvailability.belongsTo(Service, { foreignKey: 'serviceId' });
 
 Staff.belongsToMany(Service, { through: 'StaffServices' });
 Service.belongsToMany(Staff, { through: 'StaffServices' });
+
+
+Appointment.belongsTo(User, { foreignKey: 'userId' });
+Appointment.belongsTo(Staff, { foreignKey: 'staffId' });
+Appointment.belongsTo(Service, { foreignKey: 'serviceId' });
+
+User.hasMany(Appointment, { foreignKey: 'userId' });
+Staff.hasMany(Appointment, { foreignKey: 'staffId' });
+Service.hasMany(Appointment, { foreignKey: 'serviceId' });
+
 
 
 // Sync the model with the database
