@@ -47,5 +47,33 @@ exports.setServiceAvailability = async (req, res) => {
     }
 };
 
+// Fetch staff availability
+exports.getStaffAvailability = async (req, res) => {
+    try {
+        const staffAvailability = await StaffAvailability.findAll({
+            include: [{ model: Staff, attributes: ['name'] }]
+        });
+
+        res.status(200).json({ staffAvailability });
+    } catch (error) {
+        console.error('Error fetching staff availability:', error);
+        res.status(500).json({ error: 'An error occurred while retrieving staff availability.' });
+    }
+};
+
+// Fetch service availability
+exports.getServiceAvailability = async (req, res) => {
+    try {
+        const serviceAvailability = await ServiceAvailability.findAll({
+            include: [{ model: Service, attributes: ['name'] }]
+        });
+
+        res.status(200).json({ serviceAvailability });
+    } catch (error) {
+        console.error('Error fetching service availability:', error);
+        res.status(500).json({ error: 'An error occurred while retrieving service availability.' });
+    }
+};
+
 
 

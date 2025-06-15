@@ -171,5 +171,68 @@ const saveServiceAvailability = async () => {
 };
 
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+    await fetchStaffAvailability();
+    await fetchServiceAvailability();
+});
+
+// // Axios instance with authentication
+// const axiosInstance = axios.create({
+//     baseURL: 'http://localhost:3000',
+//     headers: {
+//         'Authorization': `Bearer ${localStorage.getItem('token')}`
+//     }
+// });
+
+const fetchStaffAvailability = async () => {
+    try {
+        const response = await axiosInstance.get('/configure/get-availability');
+        console.log('Staff Availability Response:', response.data); // Debugging
+
+        const availabilityContainer = document.createElement('div');
+
+        response.data.staffAvailability.forEach(staff => {
+            const staffBlock = document.createElement('div');
+            staffBlock.classList.add('availability-block');
+            staffBlock.innerHTML = `
+                <h5>${staff.Staff.name}</h5>
+                <p>Day: ${staff.day}</p>
+                <p>Working Hours: ${staff.startTime} - ${staff.endTime}</p>
+            `;
+            availabilityContainer.appendChild(staffBlock);
+        });
+
+        document.body.appendChild(availabilityContainer); // Append to page
+    } catch (error) {
+        console.error('Error fetching staff availability:', error);
+    }
+};
+
+const fetchServiceAvailability = async () => {
+    try {
+        const response = await axiosInstance.get('/configure//get-service-availability');
+        console.log('Service Availability Response:', response.data); // Debugging
+
+        const availabilityContainer = document.createElement('div');
+
+        response.data.serviceAvailability.forEach(service => {
+            const serviceBlock = document.createElement('div');
+            serviceBlock.classList.add('availability-block');
+            serviceBlock.innerHTML = `
+                <h5>${service.Service.name}</h5>
+                <p>Available Days: ${service.availableDays.join(', ')}</p>
+                <p>Time Slots: ${service.availableTimeSlots.join(', ')}</p>
+            `;
+            availabilityContainer.appendChild(serviceBlock);
+        });
+
+        document.body.appendChild(availabilityContainer); // Append to page
+    } catch (error) {
+        console.error('Error fetching service availability:', error);
+    }
+};
+
+</script>
 </body>
 </html>

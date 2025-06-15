@@ -14,4 +14,11 @@ router.post('/set-hours', authenticate, configureController.setStaffHours);
 router.post('/set-availability', authenticate, configureController.setServiceAvailability);
 // router.get('/service/get-all', authenticate, serviceController.getAllServices);
 
+// Staff Availability Route
+router.get('/get-availability', authenticate, configureController.getStaffAvailability);
+
+// Service Availability Route
+router.get('/get-service-availability', authenticate, configureController.getServiceAvailability);
+
+
 module.exports = router;
