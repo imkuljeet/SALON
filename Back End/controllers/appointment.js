@@ -150,3 +150,26 @@ exports.checkIfServiceBooked = async (req, res) => {
   }
 };
 
+// controllers/appointmentController.js
+exports.getUpcomingssAppointments = async (req, res) => {
+  const userId = req.user.id;
+  console.log("INSIDE HERE>>>>")
+  try {
+    const appointments = await Appointment.findAll({
+      where: {
+        userId,
+        status: 'booked',
+        date: { [Op.gte]: new Date().toISOString().split('T')[0] },
+      },
+      include: [Service, Staff], // include associations
+      order: [['date', 'ASC'], ['time', 'ASC']],
+    });
+
+    res.json(appointments);
+  } catch (error) {
+    console.error("Failed to fetch upcoming appointments:", error);
+    res.status(500).json({ error: "Failed to fetch appointments" });
+  }
+};
+
+

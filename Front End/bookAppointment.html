@@ -40,6 +40,12 @@
   </div>
 </div>
 
+<div class="container mb-5" id="upcomingAppointmentsContainer">
+  <h4 class="mb-3">Your Upcoming Appointments</h4>
+  <div id="appointmentsList" class="list-group"></div>
+</div>
+
+
 <!-- Footer -->
 <footer class="py-4 bg-dark text-light text-center">
   <div class="container">
@@ -60,6 +66,7 @@ function logout() {
 document.addEventListener("DOMContentLoaded", async () => {
   const accordion = document.getElementById("servicesAccordion");
   const token = localStorage.getItem("token");
+
 
   try {
     const res = await axios.get("http://localhost:3000/service/get-services", {
@@ -95,6 +102,42 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error("Error loading services:", err);
     accordion.innerHTML = `<div class="alert alert-danger">Failed to load services.</div>`;
   }
+
+async function fetchUpcomingAppointments() {
+  const token = localStorage.getItem("token");
+
+  try {
+    const res = await axios.get("http://localhost:3000/appointment/upcoming", {
+      headers: { Authorization: token }
+    });
+
+    const listContainer = document.getElementById("appointmentsList");
+    listContainer.innerHTML = "";
+
+    if (res.data.length === 0) {
+      listContainer.innerHTML = '<div class="alert alert-info">No upcoming appointments.</div>';
+      return;
+    }
+
+    res.data.forEach(app => {
+      const item = document.createElement("div");
+      item.className = "list-group-item list-group-item-action";
+      item.innerHTML = `
+        <strong>Service:</strong> ${app.Service?.name} <br>
+        <strong>Date:</strong> ${app.date} <strong>Time:</strong> ${app.time} <br>
+        <strong>Staff:</strong> ${app.Staff?.name}
+      `;
+      listContainer.appendChild(item);
+    });
+
+  } catch (err) {
+    console.error("Error fetching upcoming appointments:", err);
+    document.getElementById("appointmentsList").innerHTML = 
+      '<div class="alert alert-danger">Error fetching appointments.</div>';
+  }
+}
+fetchUpcomingAppointments();
+
 });
 
 async function bookService(serviceId, buttonElement) {
