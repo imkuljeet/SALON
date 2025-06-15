@@ -19,7 +19,6 @@
     </button>
     <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
       <ul class="navbar-nav">
-        <!-- Hardcoded Logout button -->
         <li class="nav-item">
           <button class="btn btn-danger" onclick="logout()">Logout</button>
         </li>
@@ -32,12 +31,10 @@
 <div class="container py-5">
   <h2 class="mb-3 text-center">Book Your Appointment</h2>
 
-  <!-- Go to Dashboard link (left-aligned) -->
   <div class="mb-4">
     <a href="customerDashboard.html" class="btn btn-outline-primary">← Go to Dashboard</a>
   </div>
 
-  <!-- Services Accordion -->
   <div class="accordion" id="servicesAccordion">
     <!-- Services will be injected here -->
   </div>
@@ -55,7 +52,6 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
-// Logout function
 function logout() {
   localStorage.removeItem("token");
   window.location.href = "login.html";
@@ -87,7 +83,8 @@ document.addEventListener("DOMContentLoaded", async () => {
               <p><strong>Description:</strong> ${service.description || 'No description provided.'}</p>
               <p><strong>Price:</strong> ₹${service.price}</p>
               <p><strong>Duration:</strong> ${service.duration} minutes</p>
-              <button class="btn btn-success btn-sm mt-2" onclick="bookService(${service.id})">Book This Service</button>
+              <button class="btn btn-success btn-sm mt-2" onclick="bookService(${service.id}, this)">Book This Service</button>
+              <div id="slotContainer-${service.id}" class="mt-3 d-flex flex-wrap gap-2"></div>
             </div>
           </div>
         </div>
@@ -100,9 +97,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-function bookService(serviceId) {
-  alert("Booking service ID: " + serviceId);
+async function bookService(serviceId, buttonElement) {
+  const token = localStorage.getItem("token");
+  const slotContainer = document.getElementById(`slotContainer-${serviceId}`);
+  slotContainer.innerHTML = '<p>Loading slots...</p>';
+
+  try {
+    const res = await axios.get(`http://localhost:3000/appointment/${serviceId}`, {
+      headers: {
+        Authorization: token
+      }
+    });
+
+    const { availableDays, availableTimeSlots } = res.data;
+    slotContainer.innerHTML = '';
+
+    if (!availableDays || !availableTimeSlots || availableDays.length === 0 || availableTimeSlots.length === 0) {
+      slotContainer.innerHTML = '<div class="alert alert-warning">No available slots for this service.</div>';
+      return;
+    }
+
+    availableDays.forEach((day, index) => {
+      const time = availableTimeSlots[index];
+      const button = document.createElement("button");
+      button.className = "btn btn-outline-primary btn-sm";
+      button.textContent = `${day} ${formatTime(time)}`;
+      button.onclick = () => alert(`You selected: ${day} at ${formatTime(time)}`);
+      slotContainer.appendChild(button);
+    });
+
+  } catch (error) {
+  console.error("Error fetching service availability:", error);
+  slotContainer.innerHTML = '<div class="alert alert-warning">No slots available for this service.</div>';
+}
+}
+
+function formatTime(timeString) {
+  const [hour, minute] = timeString.split(':');
+  let h = parseInt(hour);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h} ${ampm}`;
 }
 </script>
+
 </body>
 </html>
