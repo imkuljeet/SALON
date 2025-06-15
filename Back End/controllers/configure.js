@@ -5,11 +5,15 @@ const Staff = require('../models/Staff');
 
 const Service = require('../models/Service');
 const ServiceAvailability = require('../models/ServiceAvailability');
+// const StaffService = require('../models/StaffService');
 
 
+// const StaffAvailability = require('../models/StaffAvailability');
+// const Staff = require('../models/Staff');
+// const Service = require('../models/Service');
+// const ServiceAvailability = require('../models/ServiceAvailability');
 
 // Set staff working hours
-
 exports.setStaffHours = async (req, res) => {
   const { staffId, day, startTime, endTime } = req.body;
 
@@ -54,6 +58,13 @@ exports.setStaffHours = async (req, res) => {
       await serviceAvailability.update({ availableDays, availableTimeSlots });
     }
 
+    // 6. Associate staff with service (Many-to-Many via Sequelize magic methods)
+    const isAssociated = await staff.hasService(service);
+
+    if (!isAssociated) {
+      await staff.addService(service);
+    }
+
     res.status(200).json({
       message: 'Staff working hours and service availability updated successfully!',
       availability,
@@ -64,8 +75,6 @@ exports.setStaffHours = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while setting staff hours.' });
   }
 };
-
-
 
 // Set service availability
 exports.setServiceAvailability = async (req, res) => {

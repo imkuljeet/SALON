@@ -11,7 +11,7 @@ const Staff = require('./models/Staff');
 const Service = require('./models/Service');
 const StaffAvailability = require('./models/StaffAvailability');
 const ServiceAvailability = require('./models/ServiceAvailability');
-const StaffService = require('./models/StaffService');
+// const StaffService = require('./models/StaffService');
 
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
@@ -49,8 +49,16 @@ Service.hasMany(ServiceAvailability, { foreignKey: 'serviceId' });
 ServiceAvailability.belongsTo(Service, { foreignKey: 'serviceId' });
 
 // Staff Assigned to Services (Many-to-Many)
-Staff.belongsToMany(Service, { through: StaffService });
-Service.belongsToMany(Staff, { through: StaffService });
+// Staff.belongsToMany(Service);
+// Service.belongsToMany(Staff);
+
+// Staff Assigned to Services (Many-to-Many)
+// Staff.belongsToMany(Service, { through: StaffService });
+// Service.belongsToMany(Staff, { through: StaffService });
+
+Staff.belongsToMany(Service, { through: 'StaffServices' });
+Service.belongsToMany(Staff, { through: 'StaffServices' });
+
 
 // Sync the model with the database
 sequelize.sync()
