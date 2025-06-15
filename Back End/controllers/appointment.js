@@ -8,27 +8,61 @@ const Staff = require('../models/Staff');
 const StaffAvailability = require('../models/StaffAvailability');
 const { Op } = require('sequelize');
 
+//-------------------------
+
+// const { Op } = require('sequelize');
+// const Service = require('../models/Service');
+// const ServiceAvailability = require('../models/ServiceAvailability');
+// const Staff = require('../models/Staff');
+// const StaffAvailability = require('../models/StaffAvailability');
+
 exports.getServiceAvailabilityByServiceId = async (req, res) => {
   const { serviceId } = req.params;
 
   try {
-    // Check if service exists
     const service = await Service.findByPk(serviceId);
     if (!service) {
       return res.status(404).json({ error: "Service not found." });
     }
 
-    // Fetch availability for the given serviceId
     const availability = await ServiceAvailability.findOne({ where: { serviceId } });
-
     if (!availability) {
       return res.status(404).json({ error: "No availability data found for this service." });
     }
+
+    const { availableDays } = availability;
+
+    // Get staff who provide this service AND are available on the relevant days
+    const staff = await Staff.findAll({
+      include: [
+        {
+          association: Staff.associations.Services, // must be declared in model setup
+          where: { id: serviceId },
+          through: { attributes: [] },
+        },
+        {
+          model: StaffAvailability,
+          where: {
+            day: { [Op.in]: availableDays },
+          },
+          attributes: ['day'],
+        },
+      ],
+      attributes: ['id', 'name'],
+    });
+
+    // Prepare final staff array with their available days
+    const staffWithDays = staff.map(staffMember => ({
+      id: staffMember.id,
+      name: staffMember.name,
+      daysAvailable: staffMember.StaffAvailabilities.map(sa => sa.day),
+    }));
 
     res.status(200).json({
       serviceId,
       availableDays: availability.availableDays,
       availableTimeSlots: availability.availableTimeSlots,
+      staff: staffWithDays,
     });
 
   } catch (error) {

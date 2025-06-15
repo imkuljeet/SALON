@@ -109,7 +109,7 @@ async function bookService(serviceId, buttonElement) {
       }
     });
 
-    const { availableDays, availableTimeSlots } = res.data;
+    const { availableDays, availableTimeSlots, staff } = res.data;
     slotContainer.innerHTML = '';
 
     if (!availableDays || !availableTimeSlots || availableDays.length === 0 || availableTimeSlots.length === 0) {
@@ -117,19 +117,22 @@ async function bookService(serviceId, buttonElement) {
       return;
     }
 
-    availableDays.forEach((day, index) => {
-      const time = availableTimeSlots[index];
-      const button = document.createElement("button");
-      button.className = "btn btn-outline-primary btn-sm";
-      button.textContent = `${day} ${formatTime(time)}`;
-      button.onclick = () => confirmBooking(serviceId, day, time);
-      slotContainer.appendChild(button);
-    });
+    // If multiple staff, show each one for each time slot (customize logic as needed)
+    staff.forEach(staffMember => {
+  staffMember.daysAvailable.forEach((day, index) => {
+    const time = availableTimeSlots[index]; // Assumes 1:1 mapping (adjust as needed)
 
+    const button = document.createElement("button");
+    button.className = "btn btn-outline-primary btn-sm m-1";
+    button.textContent = `${day} ${formatTime(time)} - by ${staffMember.name}`;
+    button.onclick = () => confirmBooking(serviceId, day, time, staffMember.id);
+    slotContainer.appendChild(button);
+  });
+});
   } catch (error) {
-  console.error("Error fetching service availability:", error);
-  slotContainer.innerHTML = '<div class="alert alert-warning">No slots available for this service.</div>';
-}
+    console.error("Error fetching service availability:", error);
+    slotContainer.innerHTML = '<div class="alert alert-warning">No slots available for this service.</div>';
+  }
 }
 
 async function confirmBooking(serviceId, day, time) {
