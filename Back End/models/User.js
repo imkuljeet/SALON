@@ -20,6 +20,8 @@ const User = sequelize.define('User', {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    phoneNumber: { type: DataTypes.STRING, allowNull: true }, // New field
+    preferences: { type: DataTypes.STRING, allowNull: true }, // Store preferences in JSON format
   }, {
     timestamps: true, // Adds createdAt and updatedAt columns
   });

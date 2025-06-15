@@ -24,7 +24,9 @@ const getCustomerProfile = async (req, res) => {
 
         res.status(200).json({
             name: customer.fullName,
-            email: customer.email
+            email: customer.email,
+            phoneNumber : customer.phoneNumber,
+            preferences : customer.preferences
         });
     } catch (error) {
         console.error('Error fetching customer profile:', error);
@@ -32,5 +34,23 @@ const getCustomerProfile = async (req, res) => {
     }
 };
 
+const updateCustomerProfile = async (req, res) => {
+    const { fullName, phoneNumber, preferences } = req.body;
 
-module.exports = { getCustomers, getCustomerProfile };
+    try {
+        // Update customer details
+        await User.update(
+            { fullName, phoneNumber, preferences },
+            { where: { id: req.user.id, userType: 'customer' } }
+        );
+
+        res.status(200).json({ message: "Profile updated successfully!" });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.status(500).json({ error: 'An error occurred while updating the profile.' });
+    }
+};
+
+
+
+module.exports = { getCustomers, getCustomerProfile, updateCustomerProfile };

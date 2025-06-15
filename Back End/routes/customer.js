@@ -6,5 +6,7 @@ const authenticate = require('../middleware/auth'); // Import authentication mid
 // Get All Customers - Protected Route (Requires Authentication)
 router.get('/get-allcustomers', authenticate, customerController.getCustomers);
 router.get('/profile',authenticate,customerController.getCustomerProfile);
+// / Update customer profile
+router.put('/profile/update', authenticate, customerController.updateCustomerProfile);
 
 module.exports = router;

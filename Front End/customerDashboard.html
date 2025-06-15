@@ -23,7 +23,7 @@
             <a class="nav-link" href="profile.html">Profile Settings</a>
           </li>
         </ul>
-        <button class="btn btn-danger ms-auto" onclick="logout()">Logout</button> <!-- Aligned to right -->
+        <button class="btn btn-danger ms-auto" onclick="window.location.href = './login.html'">Logout</button> <!-- Aligned to right -->
       </div>
     </div>
   </nav>
@@ -32,17 +32,43 @@
   <section class="container py-5">
     <h1 class="mb-4">Hello, <span id="customerName">[User Name]</span></h1>
 
-    <!-- Upcoming Appointments -->
-    <div class="mb-5">
-      <h5>Upcoming Appointments</h5>
-      <div id="appointmentsTableContainer" class="table-responsive mt-4"></div> <!-- Dynamic appointments table -->
-    </div>
+    <!-- Profile Info Box (Initially Hidden) -->
+    <div id="profileInfo" class="border p-3 rounded bg-light" style="display: none;">
+        <strong>Email:</strong> <span id="customerEmail"></span><br>
 
-    <!-- Book New Appointment -->
-    <div class="mt-3">
-      <a href="book-appointment.html" class="btn btn-success btn-sm">Book Appointment</a>
+        <div id="phoneContainer">
+            <strong>Phone:</strong> <span id="customerPhone"></span><br>
+        </div>
+
+        <div id="preferencesContainer">
+            <strong>Preferences:</strong> <span id="customerPreferences"></span>
+        </div>
     </div>
+</section>
+  
   </section>
+
+  <div class="container mt-4">
+    <h4>Manage Your Profile</h4>
+
+    <!-- Update Profile Button -->
+    <button id="toggleProfileButton" class="btn btn-primary">Update Profile</button>
+
+    <!-- Profile Form (Hidden Initially) -->
+    <div id="profileForm" class="mt-3" style="display: none;">
+        <label for="customerName">Full Name:</label>
+        <input type="text" id="customerName" class="form-control" placeholder="Enter your name">
+
+        <label for="phoneNumber" class="mt-2">Phone Number:</label>
+        <input type="text" id="phoneNumber" class="form-control" placeholder="Enter phone number">
+
+        <label for="preferences" class="mt-2">Preferences:</label>
+        <textarea id="preferences" class="form-control" rows="3" placeholder="Enter your preferences"></textarea>
+
+        <button id="updateProfileButton" class="btn btn-success mt-3">Save Changes</button>
+    </div>
+</div>
+<br><br>
 
   <!-- Footer -->
   <footer class="py-4 bg-dark text-light">
@@ -70,6 +96,82 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Error fetching customer name:', error);
     }
 });
+
+document.getElementById('toggleProfileButton').addEventListener('click', () => {
+    const profileForm = document.getElementById('profileForm');
+    
+    // Toggle visibility
+    if (profileForm.style.display === "none") {
+        profileForm.style.display = "block";
+    } else {
+        profileForm.style.display = "none";
+    }
+});
+
+document.getElementById('updateProfileButton').addEventListener('click', async () => {
+    const token = localStorage.getItem('token');
+
+    const payload = {
+        fullName: document.getElementById('customerName').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        preferences: document.getElementById('preferences').value
+    };
+
+    try {
+        await axios.put('http://localhost:3000/customer/profile/update', payload, {
+            headers: { Authorization: token }
+        });
+
+        alert("Profile updated successfully!");
+         // Fetch updated details to reflect on screen
+         fetchCustomerProfile();
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        alert("Failed to update profile. Please try again.");
+    }
+});
+
+const fetchCustomerProfile = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+        const response = await axios.get('http://localhost:3000/customer/profile', {
+            headers: { Authorization: token }
+        });
+
+        // console.log("RESPONSE>>>",response.data);
+
+        document.getElementById('customerName').innerText = response.data.name;
+        document.getElementById('customerEmail').innerText = response.data.email;
+        document.getElementById('customerPhone').innerText = response.data.phoneNumber || 'Not provided';
+        document.getElementById('customerPreferences').innerText = response.data.preferences || 'None';
+
+        // Handle phone number visibility
+        if (response.data.phoneNumber) {
+            document.getElementById('customerPhone').innerText = response.data.phoneNumber;
+            document.getElementById('phoneContainer').style.display = "block";
+        } else {
+            document.getElementById('phoneContainer').style.display = "none";
+        }
+
+        // Handle preferences visibility
+        if (response.data.preferences && Object.keys(response.data.preferences).length > 0) {
+            document.getElementById('customerPreferences').innerText = response.data.preferences;
+            document.getElementById('preferencesContainer').style.display = "block";
+        } else {
+            document.getElementById('preferencesContainer').style.display = "none";
+        }
+
+        // Show the profile info box after loading data
+        document.getElementById('profileInfo').style.display = "block";
+    } catch (error) {
+        console.error('Error fetching customer profile:', error);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', fetchCustomerProfile);
+
+
   </script>
 </body>
 </html>
