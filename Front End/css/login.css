@@ -1,0 +1,70 @@
+/* Center the form */
+.d-flex.vh-100 {
+    background: linear-gradient(to bottom right, #dfe9f3, #ffffff); /* Soft gradient background */
+  }
+  
+  /* Form Container */
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+    background: rgba(255, 255, 255, 0.9); /* Light translucent white */
+    border-radius: 16px; /* Softer rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+    border: 1px solid #ececec; /* Thin border for a clean look */
+  }
+  
+  /* Input Fields */
+  form .form-label {
+    font-weight: bold;
+    color: #333333; /* Darker text for better readability */
+  }
+  
+  form .form-control {
+    border-radius: 8px; /* Softer input field corners */
+    height: 48px; /* Taller input fields */
+    border: 1px solid #cccccc; /* Light grey border */
+    padding: 10px;
+  }
+  
+  form .form-control:focus {
+    border-color: #6c63ff; /* Aesthetic focus color (soft purple) */
+    box-shadow: 0 0 5px rgba(108, 99, 255, 0.5); /* Slight focus glow */
+  }
+  
+  /* Login Button */
+  form .btn {
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: #6c63ff; /* Soft purple button */
+    border: none;
+    color: white;
+    border-radius: 8px; /* Rounded button */
+    padding: 10px;
+    transition: all 0.3s ease; /* Smooth hover transition */
+  }
+  
+  form .btn:hover {
+    background-color: #574bdb; /* Slightly darker on hover */
+    box-shadow: 0 4px 10px rgba(108, 99, 255, 0.5); /* Hover effect */
+  }
+  
+  /* Links */
+  .text-center p a {
+    color: #6c63ff; /* Matching link color */
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .text-center p a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Footer */
+  footer {
+    background-color: #343a40;
+    color: #fff;
+    padding: 20px 0;
+    font-size: 0.9rem;
+  }
+  
