@@ -125,6 +125,7 @@ async function fetchUpcomingAppointments() {
       item.innerHTML = `
         <strong>Service:</strong> ${app.Service?.name} <br>
         <strong>Date:</strong> ${app.date} <strong>Time:</strong> ${app.time} <br>
+        <strong>Day:</strong> ${app.day}</strong><br>
         <strong>Staff:</strong> ${app.Staff?.name}
       `;
       listContainer.appendChild(item);
@@ -174,33 +175,72 @@ async function bookService(serviceId, buttonElement) {
     }
 
     // Step 3: Display available slots with staff information
-    staff.forEach(staffMember => {
-      staffMember.daysAvailable.forEach((day, index) => {
-        const time = availableTimeSlots[index]; // Assumes 1:1 mapping (adjust as needed)
+    const getNextDateForDay = (dayName) => {
+  const dayMap = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+  };
 
-        const button = document.createElement("button");
-        button.className = "btn btn-outline-primary btn-sm m-1";
-        button.textContent = `${day} ${formatTime(time)} - by ${staffMember.name}`;
-        
-        button.onclick = async () => {
-          // Step 4: Confirm booking and handle success
-          const success = await confirmBooking(serviceId, day, time, staffMember.id);
-          
-          if (success) {
-            // Clear all buttons and show the "Booked" message
-            slotContainer.innerHTML = '';
-            const bookedMsg = document.createElement("div");
-            bookedMsg.className = "alert alert-success mt-2";
-            bookedMsg.textContent = `Booked for ${day} at ${formatTime(time)} with ${staffMember.name}`;
-            slotContainer.appendChild(bookedMsg);
-          } else {
-            alert("Failed to book service. Please try again.");
-          }
-        };
+  const today = new Date();
+  const targetDay = dayMap[dayName];
+  const currentDay = today.getDay();
+  let daysUntil = (targetDay - currentDay + 7) % 7;
+  if (daysUntil === 0) daysUntil = 7; // always move to next week if today
 
-        slotContainer.appendChild(button);
-      });
-    });
+  const resultDate = new Date(today);
+  resultDate.setDate(today.getDate() + daysUntil);
+
+  return resultDate;
+};
+
+const formatDate = (date) => {
+  const options = { month: 'short', day: 'numeric' }; // e.g., "Apr 14"
+  return date.toLocaleDateString(undefined, options);
+};
+
+staff.forEach(staffMember => {
+  staffMember.daysAvailable.forEach((day, index) => {
+    const time = availableTimeSlots[index]; // Assumes 1:1 mapping
+
+    const appointmentDate = getNextDateForDay(day); // Get the next actual date for this day
+    const formattedDate = formatDate(appointmentDate); // Format as "Apr 14"
+
+    const button = document.createElement("button");
+    button.className = "btn btn-outline-primary btn-sm m-1";
+    button.textContent = `${day} (${formattedDate}) ${formatTime(time)} - by ${staffMember.name}`;
+
+    button.onclick = async () => {
+  const appointmentDateStr = appointmentDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+
+  const success = await confirmBooking(
+    serviceId,
+    day,
+    time,
+    staffMember.id,
+    appointmentDateStr // ✅ pass actual date here
+  );
+
+  if (success) {
+    slotContainer.innerHTML = '';
+    const bookedMsg = document.createElement("div");
+    bookedMsg.className = "alert alert-success mt-2";
+    bookedMsg.textContent = `Booked for ${day} (${formattedDate}) at ${formatTime(time)} with ${staffMember.name}`;
+    slotContainer.appendChild(bookedMsg);
+  } else {
+    alert("Failed to book service. Please try again.");
+  }
+};
+
+
+    slotContainer.appendChild(button);
+  });
+});
+
   } catch (error) {
     console.error("Error fetching service availability:", error);
     let errorMessage = 'No slots available for this service.';
@@ -229,7 +269,7 @@ function formatTime(time) {
 }
 
 
-async function confirmBooking(serviceId, day, time, staffId) {
+async function confirmBooking(serviceId, day, time, staffId, date) {
   const token = localStorage.getItem("token");
 
   try {
@@ -237,7 +277,8 @@ async function confirmBooking(serviceId, day, time, staffId) {
       serviceId,
       day,
       time,
-      staffId
+      staffId,
+      date // <== send actual appointment date
     }, {
       headers: {
         Authorization: token

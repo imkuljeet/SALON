@@ -75,45 +75,38 @@ const jwt = require('jsonwebtoken');
 
 exports.bookAppointment = async (req, res) => {
   try {
-    const { serviceId, day, time } = req.body;
-    
+    const { serviceId, day, time, staffId, date } = req.body; // ✅ include date and staffId
+
     const userId = req.user.id;
 
-    console.log("REQ USER>>>",userId,serviceId,day,time);
+    console.log("REQ USER>>>", userId, serviceId, day, time, date, staffId);
 
     // Optional: Validate that the service exists
     const service = await Service.findByPk(serviceId);
     if (!service) return res.status(404).json({ message: 'Service not found' });
 
-    // Find staff available for the service at the given day and time
-    const staff = await Staff.findOne({
-      include: [
-        {
-          model: StaffAvailability,
-          where: {
-            day,
-            startTime: { [Op.lte]: time },
-            endTime: { [Op.gte]: time }
-          }
-        },
-        {
-          model: Service,
-          where: { id: serviceId }
-        }
-      ]
+    // Optional: Validate the staff is available (if not already validated on frontend)
+    const staffAvailable = await StaffAvailability.findOne({
+      where: {
+        staffId,
+        day,
+        startTime: { [Op.lte]: time },
+        endTime: { [Op.gte]: time }
+      }
     });
 
-    if (!staff) {
-      return res.status(400).json({ message: 'No available staff for selected time.' });
+    if (!staffAvailable) {
+      return res.status(400).json({ message: 'Selected staff is not available at this time.' });
     }
 
-    // Create the appointment
+    // ✅ Create the appointment with actual date and staffId
     const appointment = await Appointment.create({
       userId,
-      staffId: staff.id,
+      staffId,
       serviceId,
-      date: day,
-      time,
+      date,
+      day,       // actual appointment date: "2025-04-14"
+      time,       // e.g. "10:00"
       status: 'booked'
     });
 
