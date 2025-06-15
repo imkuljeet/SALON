@@ -9,6 +9,9 @@ const sequelize = require('./util/database');
 const User = require('./models/User');
 const Staff = require('./models/Staff');
 const Service = require('./models/Service');
+const StaffAvailability = require('./models/StaffAvailability');
+const ServiceAvailability = require('./models/ServiceAvailability');
+const StaffService = require('./models/StaffService');
 
 const userRoutes = require('./routes/user');
 const staffRoutes = require('./routes/staff');
@@ -29,6 +32,18 @@ app.use('/user',userRoutes);
 app.use('/staff',staffRoutes);
 app.use('/service',serviceRoutes);
 app.use('/customer',customerRoutes);
+
+// Staff Working Hours (One-to-Many)
+Staff.hasMany(StaffAvailability, { foreignKey: 'staffId' });
+StaffAvailability.belongsTo(Staff, { foreignKey: 'staffId' });
+
+// Service Availability (One-to-Many)
+Service.hasMany(ServiceAvailability, { foreignKey: 'serviceId' });
+ServiceAvailability.belongsTo(Service, { foreignKey: 'serviceId' });
+
+// Staff Assigned to Services (Many-to-Many)
+Staff.belongsToMany(Service, { through: StaffService });
+Service.belongsToMany(Staff, { through: StaffService });
 
 // Sync the model with the database
 sequelize.sync()
