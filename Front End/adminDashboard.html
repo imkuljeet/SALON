@@ -305,7 +305,17 @@
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
 
-    // Predefined list of specializations (same as service names)
+    // Predefined list of staff positions (aligned with services)
+    const predefinedPositions = [
+        "Hair Stylist", "Hair Specialist",
+        "Esthetician",
+        "Makeup Artist",
+        "Nail Technician",
+        "Massage Therapist",
+        "Waxing Specialist",
+        "Salon Manager", "Receptionist", "Assistant"
+    ];
+
     const predefinedSpecializations = [
         "Haircut", "Hair Coloring", "Hair Styling", "Hair Spa", "Keratin Treatment", "Hair Straightening",
         "Deep Cleansing Facial", "Anti-Aging Treatment", "Hydrating Facial", "Acne Treatment", "Skin Brightening Facial",
@@ -315,6 +325,7 @@
         "Full Body Waxing", "Eyebrow Threading", "Upper Lip Waxing"
     ];
 
+    let positionOptions = predefinedPositions.map(position => `<option value="${position}">${position}</option>`).join('');
     let specializationOptions = predefinedSpecializations.map(service => `<option value="${service}">${service}</option>`).join('');
 
     form.innerHTML = `
@@ -329,10 +340,7 @@
         <div class="mb-3">
             <label for="staffPosition" class="form-label">Position</label>
             <select id="staffPosition" class="form-select">
-                <option value="Stylist">Stylist</option>
-                <option value="Manager">Manager</option>
-                <option value="Receptionist">Receptionist</option>
-                <option value="Assistant">Assistant</option>
+                ${positionOptions}
             </select>
         </div>
         <div class="mb-3">
@@ -357,7 +365,7 @@
             name: document.getElementById('staffName').value,
             email: document.getElementById('staffEmail').value,
             position: document.getElementById('staffPosition').value,
-            specialization: document.getElementById('staffSpecialization').value, // Now uses dropdown
+            specialization: document.getElementById('staffSpecialization').value,
             status: document.getElementById('staffStatus').value
         };
         const token = localStorage.getItem('token'); 
