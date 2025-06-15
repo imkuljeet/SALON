@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
 const serviceController = require('../controllers/service');
+const authenticate = require('../middleware/auth'); // Import authentication middleware
 
-// POST route to add a service
-router.post('/add-service', serviceController.addService);
+// Add Service - Protected Route (Requires Authentication)
+router.post('/add-service', authenticate, serviceController.addService);
 
-// GET route to fetch all services
-router.get('/get-services', serviceController.getAllServices);
+// Get All Services - Protected Route (Requires Authentication)
+router.get('/get-services', authenticate, serviceController.getAllServices);
 
 module.exports = router;

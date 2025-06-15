@@ -19,13 +19,16 @@ document.querySelector('form').addEventListener('submit', function (event) {
       console.log('Success:', response.data);
       alert(response.data.message); // Display the success message from the server
 
-      // // Redirect based on userType
-      // const userType = response.data.user.userType;
-      // if (userType === 'admin') {
-      //   window.location.href = './adminDashboard.html'; 
-      // } else if (userType === 'customer') {
-      //   window.location.href = './customerDashboard.html'; 
-      // }
+      // Store token in localStorage
+      localStorage.setItem('token', response.data.token);
+
+      // Redirect based on userType
+      const userType = response.data.user.userType;
+      if (userType === 'admin') {
+        window.location.href = './adminDashboard.html'; 
+      } else if (userType === 'customer') {
+        window.location.href = './customerDashboard.html'; 
+      }
     })
     .catch(error => {
       // Handle an error response

@@ -133,10 +133,13 @@
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const customersTableContainer = document.getElementById('customersTableContainer');
-  
-      // Function to fetch and display customers
+      
+      const token = localStorage.getItem('token'); 
+
       const fetchCustomers = () => {
-        axios.get('http://localhost:3000/customer/get-allcustomers') // Your endpoint
+        axios.get('http://localhost:3000/customer/get-allcustomers',{
+        headers: { Authorization: token }
+    })
           .then(response => {
             const customers = response.data.customers; // Assuming response contains a 'customers' array
               
@@ -207,7 +210,10 @@
       // Function to remove a customer
       const removeCustomer = (customerId) => {
         if (confirm('Are you sure you want to remove this customer?')) {
-          axios.delete(`http://localhost:3000/customer/delete/${customerId}`) // Adjust to match your backend endpoint
+          const token = localStorage.getItem('token'); 
+          axios.delete(`http://localhost:3000/customer/delete/${customerId}`,{
+        headers: { Authorization: token }
+    }) // Adjust to match your backend endpoint
             .then(() => {
               alert('Customer removed successfully!');
               fetchCustomers(); // Refresh customer list
@@ -235,7 +241,10 @@
 
   // Fetch and display staff details
   const fetchStaffDetails = () => {
-    axios.get('http://localhost:3000/staff/get-staffs')
+    const token = localStorage.getItem('token'); 
+    axios.get('http://localhost:3000/staff/get-staffs',{
+        headers: { Authorization: token }
+    })
       .then(response => {
         const staffData = response.data.staff;
         if (staffData.length === 0) {
@@ -321,7 +330,10 @@
         position: document.getElementById('staffPosition').value,
         status: document.getElementById('staffStatus').value,
       };
-      axios.post('http://localhost:3000/staff/add-staff', payload)
+      const token = localStorage.getItem('token'); 
+      axios.post('http://localhost:3000/staff/add-staff', payload, {
+        headers: { Authorization: token }
+    })
         .then(() => {
           alert('Staff added successfully!');
           staffFormContainer.innerHTML = '';
@@ -338,7 +350,10 @@
 
   // Fetch and display services
   const fetchServices = () => {
-    axios.get('http://localhost:3000/service/get-services')
+    const token = localStorage.getItem('token'); 
+    axios.get('http://localhost:3000/service/get-services',{
+        headers: { Authorization: token }
+    })
       .then(response => {
         const services = response.data.services;
         if (services.length === 0) {
@@ -410,7 +425,10 @@
         price: document.getElementById('servicePrice').value,
         duration: document.getElementById('serviceDuration').value,
       };
-      axios.post('http://localhost:3000/service/add-service', payload)
+      const token = localStorage.getItem('token'); 
+      axios.post('http://localhost:3000/service/add-service', payload, {
+        headers: { Authorization: token }
+    })
         .then(() => {
           alert('Service added successfully!');
           serviceFormContainer.innerHTML = '';

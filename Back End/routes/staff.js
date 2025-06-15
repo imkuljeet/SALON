@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-
 const staffController = require('../controllers/staff');
+const authenticate = require('../middleware/auth'); // Import authentication middleware
 
+// Add Staff - Protected Route (Requires Authentication)
+router.post('/add-staff', authenticate, staffController.addStaff);
 
-// POST route for sign-up
-router.post('/add-staff', staffController.addStaff );
-router.get('/get-staffs',staffController.getStaff);
-// router.post("/login",userController.login);
+// Get All Staff Members - Protected Route (Requires Authentication)
+router.get('/get-staffs', authenticate, staffController.getStaff);
 
 module.exports = router;
