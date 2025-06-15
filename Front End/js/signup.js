@@ -17,7 +17,7 @@
     };
 
     // Use Axios to send the POST request to the server
-    axios.post('http://localhost:3000/signup', details) // Replace with your server endpoint
+    axios.post('http://localhost:3000/user/signup', details) // Replace with your server endpoint
       .then(response => {
         // Handle successful response
         console.log('Success:', response.data);
