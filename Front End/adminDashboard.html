@@ -304,6 +304,19 @@
     staffFormContainer.innerHTML = '';
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
+
+    // Predefined list of specializations (same as service names)
+    const predefinedSpecializations = [
+        "Haircut", "Hair Coloring", "Hair Styling", "Hair Spa", "Keratin Treatment", "Hair Straightening",
+        "Deep Cleansing Facial", "Anti-Aging Treatment", "Hydrating Facial", "Acne Treatment", "Skin Brightening Facial",
+        "Bridal Makeup", "Party Makeup", "Natural Look Makeup", "Airbrush Makeup",
+        "Manicure", "Pedicure", "Nail Extensions", "Gel Polish",
+        "Head Massage", "Full Body Massage", "Aromatherapy Massage",
+        "Full Body Waxing", "Eyebrow Threading", "Upper Lip Waxing"
+    ];
+
+    let specializationOptions = predefinedSpecializations.map(service => `<option value="${service}">${service}</option>`).join('');
+
     form.innerHTML = `
         <div class="mb-3">
             <label for="staffName" class="form-label">Name</label>
@@ -324,7 +337,9 @@
         </div>
         <div class="mb-3">
             <label for="staffSpecialization" class="form-label">Specialization</label>
-            <input type="text" id="staffSpecialization" class="form-control" placeholder="Enter specialization (e.g., Hair Coloring, Makeup)">
+            <select id="staffSpecialization" class="form-select">
+                ${specializationOptions}
+            </select>
         </div>
         <div class="mb-3">
             <label for="staffStatus" class="form-label">Status</label>
@@ -335,14 +350,14 @@
         </div>
         <button type="submit" class="btn btn-success">Save Staff</button>
     `;
-    
+
     form.addEventListener('submit', event => {
         event.preventDefault();
         const payload = {
             name: document.getElementById('staffName').value,
             email: document.getElementById('staffEmail').value,
             position: document.getElementById('staffPosition').value,
-            specialization: document.getElementById('staffSpecialization').value, // Added specialization field
+            specialization: document.getElementById('staffSpecialization').value, // Now uses dropdown
             status: document.getElementById('staffStatus').value
         };
         const token = localStorage.getItem('token'); 
@@ -428,10 +443,25 @@ document.getElementById('addServiceButton').addEventListener('click', () => {
     serviceFormContainer.innerHTML = '';
     const form = document.createElement('form');
     form.classList.add('p-4', 'border', 'bg-light', 'rounded');
+
+    // Predefined list of services
+    const predefinedServices = [
+        "Haircut", "Hair Coloring", "Hair Styling", "Hair Spa", "Keratin Treatment", "Hair Straightening",
+        "Deep Cleansing Facial", "Anti-Aging Treatment", "Hydrating Facial", "Acne Treatment", "Skin Brightening Facial",
+        "Bridal Makeup", "Party Makeup", "Natural Look Makeup", "Airbrush Makeup",
+        "Manicure", "Pedicure", "Nail Extensions", "Gel Polish",
+        "Head Massage", "Full Body Massage", "Aromatherapy Massage",
+        "Full Body Waxing", "Eyebrow Threading", "Upper Lip Waxing"
+    ];
+
+    let servicesOptions = predefinedServices.map(service => `<option value="${service}">${service}</option>`).join('');
+
     form.innerHTML = `
       <div class="mb-3">
-        <label for="serviceName" class="form-label">Service Name</label>
-        <input type="text" id="serviceName" class="form-control" placeholder="Enter service name" required>
+        <label for="serviceName" class="form-label">Select Service</label>
+        <select id="serviceName" class="form-select" required>
+          ${servicesOptions}
+        </select>
       </div>
       <div class="mb-3">
         <label for="servicePrice" class="form-label">Price (₹)</label>
@@ -449,24 +479,24 @@ document.getElementById('addServiceButton').addEventListener('click', () => {
     `;
 
     form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const payload = {
-        name: document.getElementById('serviceName').value,
-        price: document.getElementById('servicePrice').value,
-        duration: document.getElementById('serviceDuration').value,
-        description: document.getElementById('serviceDescription').value, // New field
-      };
-      
-      const token = localStorage.getItem('token'); 
-      axios.post('http://localhost:3000/service/add-service', payload, {
-        headers: { Authorization: token }
-      })
-      .then(() => {
-          alert('Service added successfully!');
-          serviceFormContainer.innerHTML = '';
-          fetchServices();
-      })
-      .catch(error => console.error('Error adding service:', error));
+        event.preventDefault();
+        const payload = {
+            name: document.getElementById('serviceName').value,
+            price: document.getElementById('servicePrice').value,
+            duration: document.getElementById('serviceDuration').value,
+            description: document.getElementById('serviceDescription').value
+        };
+
+        const token = localStorage.getItem('token');
+        axios.post('http://localhost:3000/service/add-service', payload, {
+            headers: { Authorization: token }
+        })
+        .then(() => {
+            alert('Service added successfully!');
+            serviceFormContainer.innerHTML = '';
+            fetchServices(); // Refresh service list
+        })
+        .catch(error => console.error('Error adding service:', error));
     });
 
     serviceFormContainer.appendChild(form);
