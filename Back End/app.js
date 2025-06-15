@@ -18,6 +18,7 @@ const staffRoutes = require('./routes/staff');
 const serviceRoutes = require('./routes/service');
 const customerRoutes = require('./routes/customer');
 const configureRoutes = require('./routes/configure');
+const assignRoutes = require('./routes/assignService');
 
 // Initialize Express app
 const app = express();
@@ -34,6 +35,7 @@ app.use('/staff',staffRoutes);
 app.use('/service',serviceRoutes);
 app.use('/customer',customerRoutes);
 app.use('/configure',configureRoutes);
+app.use('/assign',assignRoutes);
 
 // Staff Working Hours (One-to-Many)
 Staff.hasMany(StaffAvailability, { foreignKey: 'staffId' });
