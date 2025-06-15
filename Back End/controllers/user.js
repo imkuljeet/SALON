@@ -39,4 +39,37 @@ const signup = async (req, res) => {
     }
 };
 
-module.exports = { signup };
+const login = async (req, res) => {
+    const { email, password } = req.body; // Extract email and password from request body
+
+    try {
+        // Check if the email exists in the database
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found! Please sign up first.' });
+        }
+
+        // Compare the provided password with the stored hashed password
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ error: 'Invalid credentials. Please try again.' });
+        }
+
+        // Respond with success message if credentials are valid
+        res.status(200).json({
+            message: 'Login successful!',
+            user: {
+                id: user.id,
+                fullName: user.fullName,
+                email: user.email,
+                userType: user.userType,
+            }, // Do not include sensitive data (like password) in the response
+        });
+    } catch (error) {
+        console.error('Error during login:', error);
+        res.status(500).json({ error: 'An error occurred during login. Please try again later.' });
+    }
+};
+
+
+module.exports = { signup, login };
